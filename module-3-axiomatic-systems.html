@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Axiomatic Systems Reviewer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: single reading column, sticky tab bar (Reviewer / Quiz), woven-band motif as section dividers */
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --ink:#1b1d33; --muted:#5a5e7a; --line:#dcdfec;
+  --indigo:#2c3a8c; --madder:#b8323a; --gold:#c08a12; --tint:#e9ecf8; --ok:#1f7a4d; --bad:#b8323a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,7vw,3.1rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700;color:var(--indigo)}
+h3{font-size:1.12rem;font-weight:700;margin-top:1.4em}
+p{margin:.6em 0}
+a{color:var(--indigo)}
+header{padding-block:28px 12px}
+.eyebrow{font:500 .75rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--madder)}
+.lede{color:var(--muted);max-width:60ch}
+/* woven band */
+.band{height:14px;border-radius:2px;margin:6px 0 0;
+  background:
+   repeating-linear-gradient(90deg,var(--indigo) 0 10px,transparent 10px 20px),
+   repeating-linear-gradient(90deg,transparent 0 5px,var(--madder) 5px 10px,transparent 10px 20px),
+   var(--gold);
+  background-size:20px 7px,20px 7px,auto;background-position:0 0,10px 7px,0 0;background-repeat:repeat-x}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;gap:8px;border-bottom:1px solid var(--line)}
+nav button{flex:1;font:700 1rem var(--display);padding:10px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+nav button[aria-selected="true"]{background:var(--indigo);border-color:var(--indigo);color:var(--bg)}
+button:focus-visible,summary:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
+.toc a{font:500 .8rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted);background:var(--surface)}
+section{padding-block:28px 6px}
+section>.band{margin-bottom:14px;width:64px}
+ul{padding-left:1.2em;margin:.5em 0}
+li{margin:.25em 0}
+.examples{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));margin:12px 0}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.ex b{display:block;font-family:var(--display);font-size:1rem}
+.ex span{color:var(--muted);font-size:.93rem}
+.tag{display:inline-block;font:500 .68rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--madder);margin-bottom:2px}
+.tablebox{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.95rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--tint)}
+tr:last-child td{border-bottom:0}
+.key{background:var(--tint);border-left:4px solid var(--madder);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+.key strong{color:var(--madder)}
+.poem{font-family:var(--mono);font-size:.9rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;white-space:pre;overflow-x:auto;line-height:1.7}
+.poem .n{color:var(--gold)}
+.fib{display:flex;align-items:flex-end;gap:4px;height:70px;margin:10px 0}
+.fib i{display:block;width:18px;background:var(--indigo);border-radius:3px 3px 0 0;font:500 .65rem var(--mono);color:var(--bg);text-align:center;font-style:normal}
+/* quiz */
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;margin:18px 0 8px}
+.progress{flex:1 1 180px;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress div{height:100%;background:var(--madder);width:0;transition:width .3s}
+.count{font:500 .85rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.qtopic{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--madder)}
+.qtext{font:700 1.2rem/1.35 var(--display);margin:8px 0 16px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--indigo)}
+.opt .l{font:700 .85rem var(--mono);color:var(--muted);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--tint);font-size:.95rem}
+.explain b.ok{color:var(--ok)} .explain b.no{color:var(--bad)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{font:700 1rem var(--display);padding:10px 18px;border-radius:999px;border:0;background:var(--indigo);color:var(--bg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--indigo);border:1.5px solid var(--indigo)}
+.score{font:800 3.4rem var(--display);color:var(--indigo);font-variant-numeric:tabular-nums;line-height:1}
+.missed{margin-top:14px;display:grid;gap:8px}
+.missed div{border-left:3px solid var(--bad);padding:6px 12px;background:var(--bg);border-radius:0 8px 8px 0;font-size:.93rem}
+.missed em{color:var(--ok);font-style:normal;font-weight:600}
+.small{font-size:.88rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style><style>
+.calc>*{min-width:0}
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;display:grid;gap:10px}
+.calc label{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:grid;gap:4px}
+.calc textarea{font:500 .95rem/1.6 var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0;resize:vertical}
+.calc textarea:focus{outline:none;border-color:var(--indigo)}
+.wins{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
+.win{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.win b{display:block;font:800 1.5rem var(--display);color:var(--indigo)}
+.flag{font-size:.92rem;padding:8px 12px;border-radius:8px;background:var(--tint)}
+.flag.bad{border-left:3px solid var(--bad)}
+.flag.ok{border-left:3px solid var(--ok)}
+.calc details{border-top:1px solid var(--line);padding-top:8px}
+.calc summary{cursor:pointer;font:700 .95rem var(--display)}
+.calc td{white-space:nowrap}
+.calc input{font:500 1rem var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.calc input:focus{outline:none;border-color:var(--indigo)}
+.calc .row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+.calc .err{color:var(--bad);font-size:.92rem}
+.calc .sub{color:var(--muted);font-size:.88rem}
+.calc .presets{display:flex;flex-wrap:wrap;gap:6px}
+.calc .presets button{font:500 .78rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink);cursor:pointer}
+.calc table{min-width:0}
+.calc td,.calc th{font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--madder);border-radius:99px}
+.tt td,.tt th{text-align:center;font-family:var(--mono);font-size:.85rem}
+.tt th{text-transform:none;letter-spacing:0}
+.tt th.fin{background:var(--indigo);color:var(--bg)}
+.tv{color:var(--ok);font-weight:700}.fv{color:var(--bad)}
+.symbtn{font:700 1.05rem var(--mono)!important;min-width:2.6em}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:1px 5px;border-radius:4px}
+</style>
+<div class="wrap">
+<header>
+  <p style="margin:0 0 8px"><a href="index.html">← All modules</a></p>
+  <div class="eyebrow">MATH 10 · Module 3</div>
+  <h1>Axiomatic Systems, Abstraction &amp; Symbols</h1>
+  <div class="band" style="width:140px"></div>
+  <p class="lede">A reviewer on the parts of an axiomatic system, models, consistency, independence, proofs, axioms in society, and abstraction, followed by a quiz.</p>
+</header>
+
+<nav role="tablist">
+  <button id="tab-rev" role="tab" aria-selected="true" data-view="reviewer">Reviewer</button>
+  <button id="tab-quiz" role="tab" aria-selected="false" data-view="quiz">Quiz</button>
+</nav>
+
+<main id="reviewer">
+  <div class="toc">
+    <a href="#s-intro">Intro</a><a href="#s-parts">Four parts</a><a href="#s-models">Models</a><a href="#s-props">Properties</a><a href="#s-thm">Theorems</a><a href="#s-soc">Society</a><a href="#s-abs">Abstraction</a>
+  </div>
+
+  <section id="s-intro">
+    <div class="band"></div>
+    <h2>Math is like a game</h2>
+    <p>A game has special terms (some defined, some not) and rules you accept without question. A baseball runner goes <em>counterclockwise</em>, and a queen beats a jack, because the rules say so. In mathematics, the rules are <strong>axioms</strong>, and the results built from them are <strong>theorems</strong>.</p>
+    <p>The Greeks began studying logical connections among facts around 600 B.C. Around <strong>300 B.C., Euclid</strong> organized the known mathematics so that almost every theorem was proved from a few definitions and axioms, and the <strong>axiomatic method</strong> was born. Today no mathematical claim is accepted unless it can be proved from axioms.</p>
+  </section>
+
+  <section id="s-parts">
+    <div class="band"></div>
+    <h2>4.1 The Four Components</h2>
+    <div class="examples">
+      <div class="ex"><span class="tag">1</span><b>Undefined terms</b><span>The basic vocabulary, understood from context. Point, line, plane, set. Two kinds: <b>elements</b> (objects) and <b>relations</b> (connections between objects).</span></div>
+      <div class="ex"><span class="tag">2</span><b>Defined terms</b><span>Shortcuts for phrases used often, such as “parallel lines.” Not strictly needed, but efficient.</span></div>
+      <div class="ex"><span class="tag">3</span><b>Axioms</b><span>Statements accepted as true <b>without proof</b>. They implicitly define the undefined terms and are the starting point for proofs.</span></div>
+      <div class="ex"><span class="tag">4</span><b>Theorems</b><span>Statements derived from the axioms by strict logical <b>proof</b>.</span></div>
+    </div>
+    <p class="small">Example: in “a point is on a line,” <b>point</b> and <b>line</b> are elements and <b>on</b> is a relation.</p>
+    <h3>What makes a good definition</h3>
+    <ul>
+      <li>It states a single, unambiguous idea, its <strong>characteristic property</strong>. Given any object, you can tell whether it fits, and the term labels exactly the things that fit.</li>
+      <li>✓ “An isosceles triangle is a triangle in which two sides are equal.”</li>
+      <li>✗ “A square is a four-sided figure.” This is <strong>not characteristic</strong>: a rectangle or a kite also fits.</li>
+      <li>It must not be <strong>circular</strong>. ✗ “An obtuse triangle is a triangle that is obtuse.” ✗ number → quantity → amount → number. ✗ “Odd = not even” <em>and</em> “even = not odd” used together.</li>
+      <li>Because definitions can't be circular, <strong>some terms must stay undefined</strong>.</li>
+    </ul>
+    <p class="small">People need definitions even for simple shapes. Ask what a triangle is, and some will draw a shaded triangular <em>region</em>, while a geometer means just the three sides.</p>
+  </section>
+
+  <section id="s-models">
+    <div class="band"></div>
+    <h2>Interpretations and Models</h2>
+    <ul>
+      <li><strong>Interpretation:</strong> any assignment of specific meanings to the undefined terms.</li>
+      <li>An interpretation <strong>satisfies</strong> an axiom if the axiom becomes true under it.</li>
+      <li><strong>Model:</strong> an interpretation that satisfies <em>all</em> the axioms.</li>
+      <li><strong>Concrete model:</strong> meanings come from the real world (dots and segments, people, objects).</li>
+      <li><strong>Abstract model:</strong> meanings come from another axiomatic system (numbers, sets).</li>
+    </ul>
+    <h3>Module examples</h3>
+    <div class="tablebox"><table>
+      <tr><th>System</th><th>Axioms</th><th>Model</th></tr>
+      <tr><td><b>Cat–mouse</b><br>(cat, mouse, catch)</td><td>All cats catch mice. Some mice don't catch cats. At least two cats.</td><td>Cats = 1, 3; mice = 2, 5; “x catches y” if x + y is even.</td></tr>
+      <tr><td><b>Giraffe</b><br>(giraffe, taller)</td><td>Distinct giraffes: one is taller. Every giraffe has a taller one. Some giraffe is not taller than any giraffe.</td><td>Counting numbers with “greater than.” 1 is the giraffe not greater than any other. Uses the <b>Trichotomy Property</b>.</td></tr>
+      <tr><td><b>Ant–path</b><br>(ant, path, has)</td><td>Every ant has ≥ 2 paths. Every path has ≥ 2 ants. At least one ant exists.</td><td>Dots = ants, segments = paths (a diagram).</td></tr>
+      <tr><td><b>Box–crate</b><br>(box, crate, in)</td><td>Exactly 4 boxes. ≥ 1 crate. Each box in ≥ 2 crates. Not all boxes in the same crate.</td><td>Boxes 1–4; crates {1,2,3}, {1,4}, {2,4}, {3,4}; “in” = element of.</td></tr>
+    </table></div>
+  </section>
+
+  <section id="s-props">
+    <div class="band"></div>
+    <h2>Properties of an Axiomatic System</h2>
+    <div class="tablebox"><table>
+      <tr><th>Property</th><th>Meaning</th><th>How to show it</th></tr>
+      <tr><td><b>Consistent</b><br>(required)</td><td>No statement and its negation are both axioms or theorems. The axioms don't contradict.</td><td>Find <b>one model</b> where all the axioms are true.</td></tr>
+      <tr><td><b>Independent</b> axiom<br>(optional)</td><td>It can't be proved from the other axioms. Replacing it with its negation still gives a consistent system.</td><td>Find a model where <b>that axiom is false</b> and all the others are true.</td></tr>
+      <tr><td><b>Independent</b> system</td><td>Every axiom is independent (no redundant axioms).</td><td>One such model per axiom.</td></tr>
+      <tr><td><b>Complete</b></td><td>Any statement about the system can be proved or disproved from the axioms.</td><td>Show there is essentially one model.</td></tr>
+      <tr><td><b>Categorical</b></td><td>Essentially only one model (all models are isomorphic).</td><td>—</td></tr>
+    </table></div>
+    <div class="key">Consistency is <strong>necessary</strong>; independence is <strong>not</strong>. High school geometry often takes hard theorems as postulates, so its axiom sets usually aren't independent.</div>
+    <h3>Inconsistent systems</h3>
+    <ul>
+      <li>“A matches B” and “A does not match B”: no interpretation can make both true, so there are no models.</li>
+      <li><b>Point–line:</b> any two points lie on exactly one line, there are exactly 4 points, each line has exactly 2 points, and there are exactly 5 lines. Four points give C(4,2) = <b>6</b> pairs, so 6 lines are needed, which contradicts “exactly 5.”</li>
+    </ul>
+    <h3>Monkey–tree system (consistent)</h3>
+    <p>Exactly 3 monkeys. Every monkey climbs ≥ 2 trees. No tree is climbed by more than 2 monkeys.</p>
+    <p class="small"><b>Module check:</b> the module negates Axiom 3 as “a tree climbed by <em>at most</em> two monkeys.” The correct negation is “there is a tree climbed by <b>more than two</b> monkeys,” since “no tree has more than two” is false only if some tree has three or more.</p>
+    <h3>Hilbert and Gödel</h3>
+    <ul>
+      <li><strong>David Hilbert (1900)</strong> posed 23 unsolved problems. His <strong>Second Problem</strong> asked for a consistent and complete set of axioms for all of mathematics.</li>
+      <li><strong>Kurt Gödel (1930)</strong> proved the <strong>Incompleteness Theorem</strong>: any consistent system strong enough to describe arithmetic contains <strong>true statements that cannot be proven</strong>.</li>
+      <li>Example of an unproven <strong>conjecture</strong>: the <strong>Twin Primes Conjecture</strong> says there are infinitely many prime pairs that differ by 2 (3 &amp; 5, 11 &amp; 13, 101 &amp; 103). A 2004 claimed proof had a flaw.</li>
+    </ul>
+  </section>
+
+  <section id="s-thm">
+    <div class="band"></div>
+    <h2>4.1.4 Theorems and Proofs</h2>
+    <p>A proof is a logically sound argument from accepted ideas to the statement. Checking cases or running experiments can suggest a conjecture, but it <strong>never replaces a proof</strong>.</p>
+    <div class="poem">Ant–path, Theorem 1: There is at least one path.
+  By Axiom 3, an ant exists.
+  By Axiom 1, that ant has at least two paths.
+  So at least one path exists.  ■</div>
+    <p><strong>Three-point geometry</strong> (Example 12): exactly 3 points; each two points on exactly one line; not all points on one line; each two lines share at least one point. Theorems: two lines meet in <b>exactly one</b> point, and there are <b>exactly three lines</b>.</p>
+    <p class="small">End-of-proof marks: <b>Q.E.D.</b> (<em>quod erat demonstrandum</em>, “which was to be demonstrated”), the open “tombstone” rectangle, and today's filled square ■, called the <b>halmos</b> after Paul Halmos.</p>
+  </section>
+
+  <section id="s-soc">
+    <div class="band"></div>
+    <h2>4.2 Axiomatic Systems and Society</h2>
+    <ul>
+      <li><strong>Benedict de Spinoza</strong> (17th-century Dutch philosopher, lens maker) wrote <em>Ethics</em> (1677) in axiomatic form: definitions, axioms and 36 propositions in Part 1, including the necessary existence of God. He wanted to do for philosophy what Euclid did for geometry.</li>
+      <li>The <strong>US Declaration of Independence</strong> (“We hold these truths to be self-evident…”) works like a set of axioms. Several models of government could fit them.</li>
+      <li>Any society runs on axioms, written down (like the 1987 Philippine Constitution) or understood. The <strong>Supreme Court</strong> guards the axiom system, the Constitution.</li>
+    </ul>
+  </section>
+
+  <section id="s-abs">
+    <div class="band"></div>
+    <h2>4.3 Abstraction and Symbols</h2>
+    <p><strong>Abstract</strong> comes from Latin for “to pull out of” or “separate from.” <strong>Abstraction</strong> focuses on the essential features of a situation and sets aside the distracting details. It doesn't mean vague.</p>
+    <h3>Example: from arithmetic to algebra</h3>
+    <div class="poem">5·3 = 15 = 16 − 1     (4+1)(4−1) = 4² − 1²
+6·2 = 12 = 16 − 4     (4+2)(4−2) = 4² − 2²
+7·1 =  7 = 16 − 9     (4+3)(4−3) = 4² − 3²
+        ↓  abstract
+(x + y)(x − y) = x² − y²</div>
+    <p>High school algebra is “abstract arithmetic” (classical algebra): letters stand for numbers so the general rule shows.</p>
+    <h3>Operations</h3>
+    <p>An <strong>operation on a set S</strong> assigns to each <strong>ordered pair</strong> (x, y) of elements of S exactly one element of S, written x * y. Ordered means (x, y) ≠ (y, x) when x ≠ y. Operations can be shown in an <strong>operation table</strong>.</p>
+    <h3>One structure, many situations</h3>
+    <p>A 3-way lamp (off, low, medium, high) and a square tile rotated 0°, 90°, 180°, 270° share one structure: <strong>four states in a cycle</strong>. Step 4 brings you back to the start. Write “a steps followed by b steps” as a f b:</p>
+    <div class="tablebox" style="max-width:300px"><table class="tt">
+      <tr><th class="fin">f</th><th>0</th><th>1</th><th>2</th><th>3</th></tr>
+      <tr><th>0</th><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+      <tr><th>1</th><td>1</td><td>2</td><td>3</td><td>0</td></tr>
+      <tr><th>2</th><td>2</td><td>3</td><td>0</td><td>1</td></tr>
+      <tr><th>3</th><td>3</td><td>0</td><td>1</td><td>2</td></tr>
+    </table></div>
+    <div class="key">This is <strong>addition mod 4</strong>: add, then keep the remainder after dividing by 4 (so 3 f 2 = 5 → 1). A <strong>Caesar cipher</strong> uses the same idea with 26 letters instead of 4 states: Z shifted by 3 wraps around to C. <a href="module-5-caesar-cipher-lab.html">Open the Caesar Cipher Lab →</a></div>
+    <p class="small">One table, studied once, tells you about the lamp, the tile, and anything else with the same cyclic structure. That's the power of abstraction. The {0, 1} table in the last activity has the same idea with two states, like a light switch flipping on and off.</p>
+  </section>
+  <p class="small" style="margin-top:28px">Ready? <a href="#quiz">Take the quiz →</a></p>
+</main>
+
+<main id="quiz" hidden>
+  <div class="qbar"><div class="progress"><div id="pbar"></div></div><span class="count" id="count"></span></div>
+  <div class="card" id="qcard"></div>
+</main>
+</div>
+
+<script>
+const Q=[
+["Basics","In mathematics, the “rules of the game” are called:",["Theorems","Axioms","Conjectures","Definitions"],1,"Results proven from them are theorems."],
+["Basics","Who organized mathematics into an axiomatic system around 300 B.C.?",["Pythagoras","Euclid","Spinoza","Hilbert"],1,"This gave birth to the axiomatic method."],
+["Basics","The four components of an axiomatic system are:",["Points, lines, planes, angles","Undefined terms, defined terms, axioms, theorems","Models, proofs, sets, numbers","Axioms, conjectures, examples, rules"],1,"Defined terms are optional but efficient."],
+["Basics","Axioms are statements that are:",["Proven from theorems","Accepted as true without proof","Always about numbers","Conjectures waiting for proof"],1,"They are the starting point for proofs."],
+["Terms","In “a point is on a line,” which is a relation?",["point","line","on","a"],2,"Point and line are elements; “on” relates them."],
+["Terms","Why must some terms be undefined?",["They are unimportant","Definitions cannot be circular","Mathematicians forgot them","They have no meaning"],1,"Defining every word would eventually loop back on itself."],
+["Terms","“A square is a four-sided figure” is a poor definition because it is:",["Circular","Not characteristic","Too long","An axiom"],1,"Rectangles and kites also have four sides."],
+["Terms","“An obtuse triangle is a triangle that is obtuse” is:",["A good definition","Circular","Not characteristic","An axiom"],1,"It uses the term to define itself."],
+["Models","A model of an axiomatic system is an interpretation that:",["Satisfies at least one axiom","Satisfies all the axioms","Contradicts an axiom","Uses only real-world objects"],1,"Every axiom becomes true under it."],
+["Models","A model built from numbers or sets (another axiomatic system) is:",["Concrete","Abstract","Inconsistent","Categorical"],1,"Concrete models use real-world objects."],
+["Models","In the cat–mouse model, “x catches y” means:",["x > y","x + y is even","x + y is odd","x divides y"],1,"Cats 1, 3 and mice 2, 5: 1 + 5 and 3 + 5 are even."],
+["Models","The giraffe system is modeled by counting numbers and:",["“divides”","“greater than”","“equal to”","“plus one”"],1,"1 is the counting number not greater than any other."],
+["Properties","An axiomatic system is consistent if:",["Every axiom is independent","Its axioms don't contradict each other","It has exactly one model","Every statement can be proved"],1,"Show it by finding one model."],
+["Properties","To show an axiom is independent, find a model where:",["All axioms are true","That axiom is false and the others are true","That axiom is true and the others are false","No axioms are true"],1,"Then the axiom can't follow from the others."],
+["Properties","Which property is required of every useful axiomatic system?",["Independence","Consistency","Completeness","Categoricalness"],1,"An inconsistent system has no models and no practical value."],
+["Properties","Why is the system “4 points, each pair on exactly one line, every line on exactly 2 points, exactly 5 lines” inconsistent?",["4 points need 6 lines","4 points need 4 lines","Lines can't have 2 points","It has no undefined terms"],0,"C(4, 2) = 6 pairs of points, each on its own line."],
+["Properties","A system with essentially only one model (all models isomorphic) is:",["Consistent","Independent","Categorical","Abstract"],2,"Showing a single essential model also shows completeness."],
+["Properties","The correct negation of “No tree is climbed by more than two monkeys” is:",["Some tree is climbed by at most two monkeys.","Some tree is climbed by more than two monkeys.","No tree is climbed by two monkeys.","Every tree is climbed by more than two monkeys."],1,"The module says “at most two,” which is an error."],
+["Gödel","Hilbert's Second Problem asked mathematicians to:",["Prove the twin prime conjecture","Find a consistent and complete set of axioms for mathematics","Prove Euclid's fifth postulate","Define a point"],1,"Gödel showed this can't be done as Hilbert hoped."],
+["Gödel","Gödel's Incompleteness Theorem says a consistent system that can describe arithmetic:",["Has no theorems","Has true statements that cannot be proven","Is always inconsistent","Has only one model"],1,"So some mathematical truths have no proof."],
+["Gödel","The Twin Primes Conjecture says there are infinitely many primes that:",["Are even","Differ by 2","Are squares","Are Mersenne primes"],1,"3 & 5, 11 & 13, 101 & 103… It is still unproven."],
+["Proofs","Can checking many cases replace a proof?",["Yes, if there are enough cases","No, never","Only for geometry","Only with a computer"],1,"Cases support a conjecture; only a proof establishes it."],
+["Proofs","The filled square ■ at the end of a proof is called a:",["Tombstone","Halmos","Q.E.D.","Lemma"],1,"Named after Paul Halmos."],
+["Proofs","Q.E.D. stands for:",["Quite easily done","Quod erat demonstrandum","Question ends directly","Quantum est definitum"],1,"“Which was to be demonstrated.”"],
+["Society","Spinoza's Ethics (1677) is an axiomatic system about:",["Geometry","Philosophy (including God)","Economics","Physics"],1,"He wanted to do for philosophy what Euclid did for geometry."],
+["Society","The group that safeguards a nation's axiom system, its Constitution, is the:",["Senate","Supreme Court","Congress","Cabinet"],1,"It confirms changes that fit the axioms and rejects those that don't."],
+["Abstraction","The word “abstract” literally means:",["Vague","Hard to understand","To pull out of / separate from","Imaginary"],2,"Abstraction pulls out the essential feature."],
+["Abstraction","(4 + d)(4 − d) = 4² − d² generalizes to:",["(x + y)² = x² + y²","(x + y)(x − y) = x² − y²","x² − y² = (x − y)²","(x + y)(x − y) = 2x"],1,"The number 4 isn't essential."],
+["Abstraction","An operation on a set S assigns to each ordered pair of elements of S:",["Two elements of S","Exactly one element of S","A number outside S","A set"],1,"Like addition assigning 8 to (2, 6)."],
+["Abstraction","In the 4-step cycle table (lamp / tile), 3 f 2 equals:",["5","1","2","0"],1,"3 + 2 = 5, and 5 steps is one full cycle plus 1. This is addition mod 4."]
+];
+let order=[],i=0,score=0,answered=false,missed=[];
+const card=document.getElementById('qcard'),pbar=document.getElementById('pbar'),cnt=document.getElementById('count');
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a}
+function start(){Q.forEach(x=>{const ok=x[2][x[3]];x[2]=shuffle(x[2]);x[3]=x[2].indexOf(ok);});order=shuffle(Q.map((_,k)=>k));i=0;score=0;missed=[];render()}
+function render(){
+  answered=false;
+  pbar.style.width=(i/order.length*100)+'%';
+  if(i>=order.length)return finish();
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  card.innerHTML=`<div class="qtopic">${t}</div><div class="qtext">${q}</div><div class="opts">${opts.map((o,k)=>`<button class="opt" id="opt${k}" data-k="${k}"><span class="l">${'ABCD'[k]}</span><span>${o}</span></button>`).join('')}</div><div id="fb"></div>`;
+  card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+}
+function pick(k){
+  if(answered)return;answered=true;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  const btns=card.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  btns[ans].classList.add('right');
+  const ok=k===ans;
+  if(ok)score++;else{btns[k].classList.add('wrong');missed.push([q,opts[ans]])}
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  document.getElementById('fb').innerHTML=`<div class="explain"><b class="${ok?'ok':'no'}">${ok?'Correct.':'Not quite.'}</b> ${why}</div><div class="actions"><button class="btn" id="next">${i+1<order.length?'Next question':'See results'}</button></div>`;
+  const n=document.getElementById('next');n.onclick=()=>{i++;render()};n.focus();
+}
+function finish(){
+  const pct=Math.round(score/order.length*100);
+  cnt.textContent=`Done · ${score}/${order.length}`;
+  const msg=pct>=90?'Excellent. You know this module well.':pct>=75?'Good work. Review the items below.':pct>=50?'Getting there. Go over the sections you missed.':'Revisit the reviewer, then try again.';
+  card.innerHTML=`<div class="qtopic">Results</div><div class="score">${score}<span style="font-size:1.4rem;color:var(--muted)"> / ${order.length}</span></div><p>${pct}% · ${msg}</p>${missed.length?`<h3>Review these</h3><div class="missed">${missed.map(([q,a])=>`<div>${q}<br><em>Answer: ${a}</em></div>`).join('')}</div>`:''}<div class="actions"><button class="btn" id="again">Retake (shuffled)</button><button class="btn ghost" id="back">Back to reviewer</button></div>`;
+  document.getElementById('again').onclick=start;
+  document.getElementById('back').onclick=()=>{location.hash='reviewer';};
+}
+function show(v){
+  const quiz=v==='quiz';
+  document.getElementById('reviewer').hidden=quiz;
+  document.getElementById('quiz').hidden=!quiz;
+  document.getElementById('tab-rev').setAttribute('aria-selected',!quiz);
+  document.getElementById('tab-quiz').setAttribute('aria-selected',quiz);
+  if(quiz&&!order.length)start();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{location.hash=b.dataset.view});
+function route(){const h=location.hash.slice(1);if(h==='quiz')show('quiz');else if(h==='reviewer'||!h)show('reviewer');else{show('reviewer');const el=document.getElementById(h);if(el)el.scrollIntoView();}}
+window.addEventListener('hashchange',route);route();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Caesar Cipher Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: single reading column, sticky tab bar (Reviewer / Quiz), woven-band motif as section dividers */
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --ink:#1b1d33; --muted:#5a5e7a; --line:#dcdfec;
+  --indigo:#2c3a8c; --madder:#b8323a; --gold:#c08a12; --tint:#e9ecf8; --ok:#1f7a4d; --bad:#b8323a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,7vw,3.1rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700;color:var(--indigo)}
+h3{font-size:1.12rem;font-weight:700;margin-top:1.4em}
+p{margin:.6em 0}
+a{color:var(--indigo)}
+header{padding-block:28px 12px}
+.eyebrow{font:500 .75rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--madder)}
+.lede{color:var(--muted);max-width:60ch}
+/* woven band */
+.band{height:14px;border-radius:2px;margin:6px 0 0;
+  background:
+   repeating-linear-gradient(90deg,var(--indigo) 0 10px,transparent 10px 20px),
+   repeating-linear-gradient(90deg,transparent 0 5px,var(--madder) 5px 10px,transparent 10px 20px),
+   var(--gold);
+  background-size:20px 7px,20px 7px,auto;background-position:0 0,10px 7px,0 0;background-repeat:repeat-x}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;gap:8px;border-bottom:1px solid var(--line)}
+nav button{flex:1;font:700 1rem var(--display);padding:10px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+nav button[aria-selected="true"]{background:var(--indigo);border-color:var(--indigo);color:var(--bg)}
+button:focus-visible,summary:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
+.toc a{font:500 .8rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted);background:var(--surface)}
+section{padding-block:28px 6px}
+section>.band{margin-bottom:14px;width:64px}
+ul{padding-left:1.2em;margin:.5em 0}
+li{margin:.25em 0}
+.examples{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));margin:12px 0}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.ex b{display:block;font-family:var(--display);font-size:1rem}
+.ex span{color:var(--muted);font-size:.93rem}
+.tag{display:inline-block;font:500 .68rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--madder);margin-bottom:2px}
+.tablebox{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.95rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--tint)}
+tr:last-child td{border-bottom:0}
+.key{background:var(--tint);border-left:4px solid var(--madder);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+.key strong{color:var(--madder)}
+.poem{font-family:var(--mono);font-size:.9rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;white-space:pre;overflow-x:auto;line-height:1.7}
+.poem .n{color:var(--gold)}
+.fib{display:flex;align-items:flex-end;gap:4px;height:70px;margin:10px 0}
+.fib i{display:block;width:18px;background:var(--indigo);border-radius:3px 3px 0 0;font:500 .65rem var(--mono);color:var(--bg);text-align:center;font-style:normal}
+/* quiz */
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;margin:18px 0 8px}
+.progress{flex:1 1 180px;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress div{height:100%;background:var(--madder);width:0;transition:width .3s}
+.count{font:500 .85rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.qtopic{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--madder)}
+.qtext{font:700 1.2rem/1.35 var(--display);margin:8px 0 16px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--indigo)}
+.opt .l{font:700 .85rem var(--mono);color:var(--muted);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--tint);font-size:.95rem}
+.explain b.ok{color:var(--ok)} .explain b.no{color:var(--bad)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{font:700 1rem var(--display);padding:10px 18px;border-radius:999px;border:0;background:var(--indigo);color:var(--bg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--indigo);border:1.5px solid var(--indigo)}
+.score{font:800 3.4rem var(--display);color:var(--indigo);font-variant-numeric:tabular-nums;line-height:1}
+.missed{margin-top:14px;display:grid;gap:8px}
+.missed div{border-left:3px solid var(--bad);padding:6px 12px;background:var(--bg);border-radius:0 8px 8px 0;font-size:.93rem}
+.missed em{color:var(--ok);font-style:normal;font-weight:600}
+.small{font-size:.88rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style><style>
+.calc>*{min-width:0}
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;display:grid;gap:10px}
+.calc label{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:grid;gap:4px}
+.calc textarea{font:500 .95rem/1.6 var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0;resize:vertical}
+.calc textarea:focus{outline:none;border-color:var(--indigo)}
+.wins{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
+.win{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.win b{display:block;font:800 1.5rem var(--display);color:var(--indigo)}
+.flag{font-size:.92rem;padding:8px 12px;border-radius:8px;background:var(--tint)}
+.flag.bad{border-left:3px solid var(--bad)}
+.flag.ok{border-left:3px solid var(--ok)}
+.calc details{border-top:1px solid var(--line);padding-top:8px}
+.calc summary{cursor:pointer;font:700 .95rem var(--display)}
+.calc td{white-space:nowrap}
+.calc input{font:500 1rem var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.calc input:focus{outline:none;border-color:var(--indigo)}
+.calc .row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+.calc .err{color:var(--bad);font-size:.92rem}
+.calc .sub{color:var(--muted);font-size:.88rem}
+.calc .presets{display:flex;flex-wrap:wrap;gap:6px}
+.calc .presets button{font:500 .78rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink);cursor:pointer}
+.calc table{min-width:0}
+.calc td,.calc th{font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--madder);border-radius:99px}
+.tt td,.tt th{text-align:center;font-family:var(--mono);font-size:.85rem}
+.tt th{text-transform:none;letter-spacing:0}
+.tt th.fin{background:var(--indigo);color:var(--bg)}
+.tv{color:var(--ok);font-weight:700}.fv{color:var(--bad)}
+.symbtn{font:700 1.05rem var(--mono)!important;min-width:2.6em}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:1px 5px;border-radius:4px}
+</style>
+<style>
+.strip{display:grid;grid-template-columns:repeat(26,minmax(0,1fr));gap:2px;font:500 .78rem var(--mono);text-align:center}
+.strip span{padding:5px 0;border-radius:4px;background:var(--bg)}
+.strip .p{color:var(--muted)}
+.strip .c{background:var(--tint);color:var(--indigo);font-weight:700}
+.strip .hit{background:var(--madder);color:var(--bg)}
+.stripwrap{overflow-x:auto}
+.stripwrap .strip{min-width:520px}
+.big{font:700 1.25rem/1.5 var(--mono);word-break:break-word;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;min-height:3em;white-space:pre-wrap}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{font:700 .9rem var(--display);padding:8px 16px;border:0;background:var(--surface);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--indigo);color:var(--bg)}
+.krow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.krow input[type=range]{flex:1 1 180px;accent-color:var(--madder)}
+.kval{font:800 2rem var(--display);color:var(--madder);min-width:2.2ch;text-align:center;font-variant-numeric:tabular-nums}
+.steps td{font-family:var(--mono);font-size:.88rem}
+.cands{display:grid;gap:4px}
+.cand{display:grid;grid-template-columns:3.2em 1fr;gap:8px;align-items:baseline;font:500 .9rem var(--mono);padding:4px 8px;border-radius:6px}
+.cand.best{background:color-mix(in srgb,var(--ok) 14%,var(--surface));outline:1.5px solid var(--ok)}
+.cand b{color:var(--muted)}
+.cand span{word-break:break-word;min-width:0}
+.freq{display:grid;grid-template-columns:repeat(26,minmax(0,1fr));gap:2px;align-items:end;height:110px}
+.freq div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font:500 .6rem var(--mono);color:var(--muted);gap:2px}
+.freq i{display:block;width:100%;background:var(--indigo);border-radius:2px 2px 0 0;min-height:1px}
+.freq .top i{background:var(--madder)}
+</style>
+<div class="wrap">
+<header>
+  <p style="margin:0 0 8px"><a href="index.html">← All modules</a></p>
+  <div class="eyebrow">MATH 10 · Module 5 · Cryptography</div>
+  <h1>Caesar Cipher Lab</h1>
+  <div class="band" style="width:140px"></div>
+  <p class="lede">How the Caesar cipher works, the modular arithmetic behind it, and how to crack it. Includes an encoder/decoder, a code breaker and a practice quiz.</p>
+</header>
+
+<nav role="tablist">
+  <button id="tab-rev" role="tab" aria-selected="true" data-view="reviewer">Lesson &amp; tools</button>
+  <button id="tab-quiz" role="tab" aria-selected="false" data-view="quiz">Practice</button>
+</nav>
+
+<main id="reviewer">
+  <div class="toc">
+    <a href="#s-what">1 What it is</a><a href="#s-mod">2 The math</a><a href="#tool-enc">Encoder</a><a href="#s-crack">3 Cracking it</a><a href="#tool-crack">Code breaker</a><a href="#s-sum">Cheat sheet</a>
+  </div>
+
+  <section id="s-what">
+    <div class="band"></div>
+    <h2>1. What is a Caesar cipher?</h2>
+    <p>A <strong>Caesar cipher</strong> (or <strong>shift cipher</strong>) hides a message by shifting every letter a fixed number of places down the alphabet. The number of places is the <strong>key</strong>, k. According to the Roman historian Suetonius, <strong>Julius Caesar</strong> used k = 3 for his private letters.</p>
+    <div class="stripwrap"><div class="strip" id="demoStrip" aria-label="Alphabet shifted by 3"></div></div>
+    <p class="small">Top row: plain letter. Bottom row: what it becomes with k = 3. A → D, B → E, … and at the end it <strong>wraps around</strong>: X → A, Y → B, Z → C.</p>
+    <div class="tablebox"><table>
+      <tr><th>Term</th><th>Meaning</th></tr>
+      <tr><td><b>Plaintext</b></td><td>The original message: HELLO</td></tr>
+      <tr><td><b>Ciphertext</b></td><td>The scrambled message: KHOOR</td></tr>
+      <tr><td><b>Key</b> (k)</td><td>The shift amount, 3</td></tr>
+      <tr><td><b>Encrypt</b></td><td>Plaintext → ciphertext (shift forward by k)</td></tr>
+      <tr><td><b>Decrypt</b></td><td>Ciphertext → plaintext (shift back by k)</td></tr>
+    </table></div>
+  </section>
+
+  <section id="s-mod">
+    <div class="band"></div>
+    <h2>2. The math: modular arithmetic</h2>
+    <p>First, turn letters into numbers. Module 5 numbers them <strong>A = 1, B = 2, …, Y = 25, and Z = 0</strong>:</p>
+    <div class="stripwrap"><div class="strip" id="numStrip"></div></div>
+    <p>Shifting forward means adding k. To make Z wrap back to A, we use <strong>mod 26</strong>: divide by 26 and keep only the <strong>remainder</strong>.</p>
+    <div class="poem">Encrypt:  C = (P + k) mod 26
+Decrypt:  P = (C − k) mod 26</div>
+    <p class="small">Why is Z = 0? Z would be 26, and 26 mod 26 = 0. Some books start at A = 0 instead. For a Caesar shift you get the same ciphertext either way; only the numbers in the working change.</p>
+    <p><strong>Why it works:</strong> it's like a clock. On a 12-hour clock, 9 o'clock plus 5 hours is 2 o'clock, because 14 mod 12 = 2. The alphabet is a clock with 26 positions. This is the same idea as the 4-step cycle table (lamp and tile) in Module 3, which is addition mod 4.</p>
+    <h3>Worked example: encrypt HELLO with k = 3</h3>
+    <div class="tablebox"><table class="steps">
+      <tr><th>Letter</th><th>P</th><th>P + 3</th><th>mod 26</th><th>Cipher</th></tr>
+      <tr><td>H</td><td>8</td><td>11</td><td>11</td><td><b>K</b></td></tr>
+      <tr><td>E</td><td>5</td><td>8</td><td>8</td><td><b>H</b></td></tr>
+      <tr><td>L</td><td>12</td><td>15</td><td>15</td><td><b>O</b></td></tr>
+      <tr><td>L</td><td>12</td><td>15</td><td>15</td><td><b>O</b></td></tr>
+      <tr><td>O</td><td>15</td><td>18</td><td>18</td><td><b>R</b></td></tr>
+    </table></div>
+    <h3>The wrap-around cases</h3>
+    <ul>
+      <li><strong>Going past Z:</strong> Y with k = 3: 25 + 3 = 28, and 28 mod 26 = <b>2</b> → B. (Z itself is 0, so Z + 3 = 3 → C.)</li>
+      <li><strong>Going below 0 (decrypting):</strong> C with k = 5: 3 − 5 = −2. Add 26 to get back in range: −2 + 26 = <b>24</b> → X.</li>
+      <li><strong>Big keys:</strong> k = 29 does the same as k = 3, since 29 mod 26 = 3. Only keys 1 to 25 are different, and k = 0 or 26 changes nothing.</li>
+      <li><strong>Decrypting is encrypting backwards:</strong> shifting back by k is the same as shifting forward by 26 − k. To undo k = 3, shift forward by 23.</li>
+    </ul>
+    <div class="key"><strong>ROT13</strong> (k = 13) is its own inverse: 13 + 13 = 26 ≡ 0 (mod 26), so applying it twice gives back the original. Websites used it to hide spoilers.</div>
+
+    <div class="calc" id="tool-enc">
+      <h3 style="margin:0">Encoder / decoder</h3>
+      <div class="krow">
+        <div class="seg" role="group" aria-label="Mode"><button id="mEnc" aria-pressed="true">Encrypt</button><button id="mDec" aria-pressed="false">Decrypt</button></div>
+        <label for="kslider" style="flex:1 1 200px">Key k<input type="range" id="kslider" min="0" max="25" value="3"></label>
+        <span class="kval" id="kval">3</span>
+      </div>
+      <label for="ein">Your message<textarea id="ein" rows="2" spellcheck="false">Meet me at the library at noon</textarea></label>
+      <div><div class="sub" id="eoutlbl">Ciphertext</div><div class="big" id="eout" aria-live="polite"></div></div>
+      <div class="actions" style="margin-top:0"><button class="btn ghost" id="ecopy">Copy result</button><button class="btn ghost" id="eswap">Use result as input</button></div>
+      <div class="stripwrap"><div class="strip" id="liveStrip"></div></div>
+      <details><summary>Show the math for each letter</summary><div id="esteps"></div></details>
+    </div>
+  </section>
+
+  <section id="s-crack">
+    <div class="band"></div>
+    <h2>3. Cracking the cipher</h2>
+    <p>The Caesar cipher is easy to break, for two reasons.</p>
+    <h3>Brute force: try every key</h3>
+    <p>There are only <strong>25 possible keys</strong>. Try them all, and the one that gives readable words is the answer. That takes minutes by hand and an instant by computer.</p>
+    <h3>Frequency analysis</h3>
+    <p>In English, some letters appear far more often than others. <strong>E</strong> is the most common, followed by T, A, O, I and N. A shift moves every letter by the same amount, so the most common ciphertext letter is probably E in disguise. If the most common ciphertext letter is H, then k = H − E = 8 − 5 = <b>3</b>. The Arab scholar <strong>al-Kindi</strong> described this method in the 9th century.</p>
+    <p class="small">Frequency analysis works best on longer messages. A short message might not have many E's.</p>
+
+    <div class="calc" id="tool-crack">
+      <h3 style="margin:0">Code breaker</h3>
+      <div class="sub">Paste a message encrypted with an unknown shift. The breaker tries all 25 keys and highlights the one that looks most like English, using letter frequencies.</div>
+      <label for="cin">Ciphertext<textarea id="cin" rows="2" spellcheck="false">WKH GLH LV FDVW</textarea></label>
+      <div class="presets" id="cpre"></div>
+      <div><div class="sub">Letter frequency in your ciphertext (red = most common)</div><div class="freq" id="freq"></div><p class="sub" id="freqhint"></p></div>
+      <div class="cands" id="cands"></div>
+    </div>
+  </section>
+
+  <section id="s-sum">
+    <div class="band"></div>
+    <h2>Cheat sheet</h2>
+    <ul>
+      <li>Module 5 numbering: A = 1, B = 2, …, Y = 25, Z = 0. Landmarks: E = 5, J = 10, O = 15, T = 20, Y = 25.</li>
+      <li><b>Encrypt:</b> C = (P + k) mod 26. <b>Decrypt:</b> P = (C − k) mod 26.</li>
+      <li>If you get 26 or more, subtract 26. If you get a negative number, add 26.</li>
+      <li>Spaces, digits and punctuation stay the same. Only letters shift.</li>
+      <li>Only 25 useful keys, so it's weak. It's broken by brute force or frequency analysis.</li>
+      <li>Find the key from one known pair: k = (cipher letter − plain letter) mod 26.</li>
+    </ul>
+    <p class="small">This page follows <b>Module 5</b>, which teaches the general cipher y = ax + b (mod 26). A Caesar cipher is the case a = 1: y = x + k. The Module 5 reviewer has a tool for the full y = ax + b version.</p>
+  </section>
+  <p class="small" style="margin-top:28px">Ready? <a href="#quiz">Try the practice →</a></p>
+</main>
+
+<main id="quiz" hidden>
+  <div class="qbar"><div class="progress"><div id="pbar"></div></div><span class="count" id="count"></span></div>
+  <div class="card" id="qcard"></div>
+</main>
+</div>
+
+<script>
+const Q=[
+["Basics","In a Caesar cipher, every letter is:",["Replaced by a random letter","Shifted the same number of places","Reversed","Replaced by a number"],1,"The fixed shift amount is the key."],
+["Basics","Julius Caesar reportedly used a shift of:",["1","3","13","26"],1,"According to the historian Suetonius."],
+["Basics","The scrambled message is called the:",["Plaintext","Ciphertext","Key","Alphabet"],1,"Plaintext is the original."],
+["Numbers","In the Module 5 numbering (A = 1 … Y = 25, Z = 0), what number is T?",["19","20","18","21"],1,"T is the 20th letter."],
+["Numbers","What is 28 mod 26?",["28","2","1","26"],1,"28 − 26 = 2."],
+["Numbers","What is (2 − 5) mod 26?",["−3","3","23","21"],2,"−3 + 26 = 23."],
+["Encrypt","Encrypt HELLO with k = 3.",["KHOOR","IFMMP","EBIIL","KHOOP"],0,"H→K, E→H, L→O, L→O, O→R."],
+["Encrypt","Encrypt Z with k = 3.",["C","Y","B","Z"],0,"Z = 0, so 0 + 3 = 3, which is C."],
+["Encrypt","Encrypt MATH with k = 5.",["RFYM","HVOC","NBUI","RFZM"],0,"M(13)+5=18 R · A(1)+5=6 F · T(20)+5=25 Y · H(8)+5=13 M."],
+["Encrypt","Encrypt ZEBRA with k = 4.",["DIFVE","DIFVA","VAXNW","CIFVE"],0,"Z = 0, so 0 + 4 = 4 → D."],
+["Decrypt","Decrypt WKH GLH LV FDVW (k = 3).",["THE DIE IS CAST","THE DOG IS LOST","ZNK JOK OY IGYZ","THE DAY IS PAST"],0,"Caesar's famous words when crossing the Rubicon."],
+["Decrypt","Decrypt C with k = 5.",["H","X","W","Y"],1,"C = 3: 3 − 5 = −2, and −2 + 26 = 24, which is X."],
+["Decrypt","Undoing a shift of k = 3 is the same as shifting forward by:",["3","13","23","26"],2,"26 − 3 = 23."],
+["Keys","A key of k = 29 works exactly like:",["k = 29 (a new key)","k = 3","k = 26","k = 2"],1,"29 mod 26 = 3."],
+["Keys","How many keys actually change the message?",["26","25","13","Infinitely many"],1,"k = 1 to 25. k = 0 or 26 leaves it unchanged."],
+["Keys","Plaintext A encrypts to ciphertext F. What is the key?",["4","5","6","21"],1,"k = F − A = 6 − 1 = 5."],
+["Keys","ROT13 is special because:",["It can't be cracked","Applying it twice gives the original","It shifts by 26","It only works on vowels"],1,"13 + 13 = 26 ≡ 0 (mod 26)."],
+["Keys","Encrypt LOGIC with ROT13.",["YBTVP","YVTVP","OLJLF","XBTVP"],0,"L(12)+13=25 Y · O(15)+13=28→2 B · G(7)+13=20 T · I(9)+13=22 V · C(3)+13=16 P."],
+["Cracking","Why is the Caesar cipher easy to break by brute force?",["It uses numbers","There are only 25 keys to try","It is printed in capitals","It keeps spaces"],1,"You can try them all quickly."],
+["Cracking","Which letter appears most often in English text?",["A","T","E","S"],2,"So the most common ciphertext letter often stands for E."],
+["Cracking","The most common letter in a long ciphertext is H. The key is probably:",["3","4","7","11"],0,"If H stands for E: 8 − 5 = 3."],
+["Cracking","Breaking a cipher by counting letters is called:",["Brute force","Frequency analysis","Modular arithmetic","Substitution"],1,"Al-Kindi described it in the 9th century."],
+["Math link","The Caesar cipher uses the same structure as Module 3's 4-step lamp/tile table, but with:",["2 positions","12 positions","26 positions","100 positions"],2,"Addition mod 26 instead of addition mod 4."],
+["Module 5","In Module 5's cipher y = ax + b, a Caesar cipher is the case:",["a = 0","a = 1","b = 0","b = 26"],1,"y = x + b just shifts every letter by b."]
+];
+let order=[],i=0,score=0,answered=false,missed=[];
+const card=document.getElementById('qcard'),pbar=document.getElementById('pbar'),cnt=document.getElementById('count');
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a}
+function start(){Q.forEach(x=>{const ok=x[2][x[3]];x[2]=shuffle(x[2]);x[3]=x[2].indexOf(ok);});order=shuffle(Q.map((_,k)=>k));i=0;score=0;missed=[];render()}
+function render(){
+  answered=false;
+  pbar.style.width=(i/order.length*100)+'%';
+  if(i>=order.length)return finish();
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  card.innerHTML=`<div class="qtopic">${t}</div><div class="qtext">${q}</div><div class="opts">${opts.map((o,k)=>`<button class="opt" id="opt${k}" data-k="${k}"><span class="l">${'ABCD'[k]}</span><span>${o}</span></button>`).join('')}</div><div id="fb"></div>`;
+  card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+}
+function pick(k){
+  if(answered)return;answered=true;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  const btns=card.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  btns[ans].classList.add('right');
+  const ok=k===ans;
+  if(ok)score++;else{btns[k].classList.add('wrong');missed.push([q,opts[ans]])}
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  document.getElementById('fb').innerHTML=`<div class="explain"><b class="${ok?'ok':'no'}">${ok?'Correct.':'Not quite.'}</b> ${why}</div><div class="actions"><button class="btn" id="next">${i+1<order.length?'Next question':'See results'}</button></div>`;
+  const n=document.getElementById('next');n.onclick=()=>{i++;render()};n.focus();
+}
+function finish(){
+  const pct=Math.round(score/order.length*100);
+  cnt.textContent=`Done · ${score}/${order.length}`;
+  const msg=pct>=90?'Excellent. You know this module well.':pct>=75?'Good work. Review the items below.':pct>=50?'Getting there. Go over the sections you missed.':'Revisit the reviewer, then try again.';
+  card.innerHTML=`<div class="qtopic">Results</div><div class="score">${score}<span style="font-size:1.4rem;color:var(--muted)"> / ${order.length}</span></div><p>${pct}% · ${msg}</p>${missed.length?`<h3>Review these</h3><div class="missed">${missed.map(([q,a])=>`<div>${q}<br><em>Answer: ${a}</em></div>`).join('')}</div>`:''}<div class="actions"><button class="btn" id="again">Retake (shuffled)</button><button class="btn ghost" id="back">Back to reviewer</button></div>`;
+  document.getElementById('again').onclick=start;
+  document.getElementById('back').onclick=()=>{location.hash='reviewer';};
+}
+function show(v){
+  const quiz=v==='quiz';
+  document.getElementById('reviewer').hidden=quiz;
+  document.getElementById('quiz').hidden=!quiz;
+  document.getElementById('tab-rev').setAttribute('aria-selected',!quiz);
+  document.getElementById('tab-quiz').setAttribute('aria-selected',quiz);
+  if(quiz&&!order.length)start();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{location.hash=b.dataset.view});
+function route(){const h=location.hash.slice(1);if(h==='quiz')show('quiz');else if(h==='reviewer'||!h)show('reviewer');else{show('reviewer');const el=document.getElementById(h);if(el)el.scrollIntoView();}}
+window.addEventListener('hashchange',route);route();
+
+const AL='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const mod=(n,m)=>((n%m)+m)%m;
+const shiftText=(s,k)=>s.replace(/[a-z]/gi,c=>{const b=c<='Z'?65:97;return String.fromCharCode(mod(c.charCodeAt(0)-b+k,26)+b)});
+const strip=(el,k,hits=new Set())=>{el.innerHTML=AL.split('').map(c=>`<span class="p${hits.has(c)?' hit':''}">${c}</span>`).join('')+AL.split('').map((c,i)=>`<span class="c${hits.has(c)?' hit':''}">${AL[mod(i+k,26)]}</span>`).join('')};
+strip(document.getElementById('demoStrip'),3);
+document.getElementById('numStrip').innerHTML=AL.split('').map(c=>`<span class="p">${c}</span>`).join('')+AL.split('').map((c,i)=>`<span class="c">${(i+1)%26}</span>`).join('');
+let enc=true;
+function runE(){
+  const k=+document.getElementById('kslider').value;document.getElementById('kval').textContent=k;
+  const s=document.getElementById('ein').value;const out=shiftText(s,enc?k:-k);
+  document.getElementById('eout').textContent=out||' ';
+  document.getElementById('eoutlbl').textContent=enc?`Ciphertext (shifted forward ${k})`:`Plaintext (shifted back ${k})`;
+  const used=new Set(s.toUpperCase().replace(/[^A-Z]/g,'').split(''));
+  strip(document.getElementById('liveStrip'),k,enc?used:new Set());
+  const letters=[...s].filter(c=>/[a-z]/i.test(c)).slice(0,12);
+  document.getElementById('esteps').innerHTML=letters.length?`<div class="tablebox"><table class="steps"><tr><th>Letter</th><th>${enc?'P':'C'}</th><th>${enc?`P + ${k}`:`C − ${k}`}</th><th>mod 26</th><th>Result</th></tr>${letters.map(c=>{const n=(AL.indexOf(c.toUpperCase())+1)%26;const r=enc?n+k:n-k;return `<tr><td>${c.toUpperCase()}</td><td>${n}</td><td>${r}</td><td>${mod(r,26)}${r<0?' (add 26)':r>25?' (subtract 26)':''}</td><td><b>${AL[mod(r-1,26)]}</b></td></tr>`}).join('')}</table></div>${[...s].filter(c=>/[a-z]/i.test(c)).length>12?'<p class="sub">Showing the first 12 letters.</p>':''}`:'<p class="sub">Type some letters to see the working.</p>';
+}
+const setMode=e=>{enc=e;document.getElementById('mEnc').setAttribute('aria-pressed',e);document.getElementById('mDec').setAttribute('aria-pressed',!e);runE()};
+document.getElementById('mEnc').onclick=()=>setMode(true);document.getElementById('mDec').onclick=()=>setMode(false);
+document.getElementById('kslider').addEventListener('input',runE);document.getElementById('ein').addEventListener('input',runE);
+document.getElementById('eswap').onclick=()=>{document.getElementById('ein').value=document.getElementById('eout').textContent.trim();setMode(!enc)};
+document.getElementById('ecopy').onclick=e=>{const t=document.getElementById('eout').textContent;const b=e.currentTarget;const done=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy result',1500)};
+  try{navigator.clipboard.writeText(t).then(done,()=>{const r=document.createRange();r.selectNodeContents(document.getElementById('eout'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);b.textContent='Selected, press copy'})}catch(_){}};
+runE();
+const EN=[8.2,1.5,2.8,4.3,12.7,2.2,2.0,6.1,7.0,0.15,0.77,4.0,2.4,6.7,7.5,1.9,0.095,6.0,6.3,9.1,2.8,0.98,2.4,0.15,2.0,0.074];
+function engScore(t){const c=Array(26).fill(0);let n=0;for(const ch of t.toUpperCase()){const i=AL.indexOf(ch);if(i>=0){c[i]++;n++}}if(!n)return Infinity;return c.reduce((s,x,i)=>{const e=EN[i]/100*n;return s+(x-e)**2/e},0)}
+function runC(){
+  const s=document.getElementById('cin').value;const counts=Array(26).fill(0);for(const ch of s.toUpperCase()){const i=AL.indexOf(ch);if(i>=0)counts[i]++}
+  const mx=Math.max(...counts);const tot=counts.reduce((a,b)=>a+b,0);
+  document.getElementById('freq').innerHTML=counts.map((c,i)=>`<div class="${c===mx&&mx>0?'top':''}"><i style="height:${mx?c/mx*80:0}%"></i>${AL[i]}</div>`).join('');
+  const topI=counts.indexOf(mx);
+  document.getElementById('freqhint').textContent=tot?`Most common: ${AL[topI]} (${mx} of ${tot} letters). If ${AL[topI]} stands for E, then k = (${(topI+1)%26} − 5) mod 26 = ${mod(topI-4,26)}.`:'Type a message with letters.';
+  if(!tot){document.getElementById('cands').innerHTML='';return}
+  const rows=[];for(let k=1;k<26;k++){const p=shiftText(s,-k);rows.push({k,p,sc:engScore(p)})}
+  const best=rows.reduce((a,b)=>b.sc<a.sc?b:a);
+  document.getElementById('cands').innerHTML=`<p class="sub">All 25 keys. The best guess is highlighted${tot<20?'; short messages can fool it, so read the list yourself':''}.</p>`+rows.map(r=>`<div class="cand${r===best?' best':''}"><b>k=${r.k}</b><span>${r.p.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span></div>`).join('');
+}
+const CP=[['Caesar\'s famous words','WKH GLH LV FDVW'],['Exam wish','JRRG OXFN RQ WKH HADP'],['Mystery','BPM ZMIT XWEMZ WN UIBPMUIBQKA QA QV BPM QLMIA'],['ROT13','YBTVP NAQ ERNFBAVAT']];
+document.getElementById('cpre').innerHTML=CP.map((x,i)=>`<button data-i="${i}">${x[0]}</button>`).join('');
+document.getElementById('cpre').onclick=e=>{const b=e.target.closest('button');if(!b)return;document.getElementById('cin').value=CP[b.dataset.i][1];runC()};
+document.getElementById('cin').addEventListener('input',runC);runC();
+
+</script>
+
+</body>
+</html>

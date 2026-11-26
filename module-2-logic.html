@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Logic Reviewer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: single reading column, sticky tab bar (Reviewer / Quiz), woven-band motif as section dividers */
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --ink:#1b1d33; --muted:#5a5e7a; --line:#dcdfec;
+  --indigo:#2c3a8c; --madder:#b8323a; --gold:#c08a12; --tint:#e9ecf8; --ok:#1f7a4d; --bad:#b8323a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,7vw,3.1rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700;color:var(--indigo)}
+h3{font-size:1.12rem;font-weight:700;margin-top:1.4em}
+p{margin:.6em 0}
+a{color:var(--indigo)}
+header{padding-block:28px 12px}
+.eyebrow{font:500 .75rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--madder)}
+.lede{color:var(--muted);max-width:60ch}
+/* woven band */
+.band{height:14px;border-radius:2px;margin:6px 0 0;
+  background:
+   repeating-linear-gradient(90deg,var(--indigo) 0 10px,transparent 10px 20px),
+   repeating-linear-gradient(90deg,transparent 0 5px,var(--madder) 5px 10px,transparent 10px 20px),
+   var(--gold);
+  background-size:20px 7px,20px 7px,auto;background-position:0 0,10px 7px,0 0;background-repeat:repeat-x}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;gap:8px;border-bottom:1px solid var(--line)}
+nav button{flex:1;font:700 1rem var(--display);padding:10px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+nav button[aria-selected="true"]{background:var(--indigo);border-color:var(--indigo);color:var(--bg)}
+button:focus-visible,summary:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
+.toc a{font:500 .8rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted);background:var(--surface)}
+section{padding-block:28px 6px}
+section>.band{margin-bottom:14px;width:64px}
+ul{padding-left:1.2em;margin:.5em 0}
+li{margin:.25em 0}
+.examples{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));margin:12px 0}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.ex b{display:block;font-family:var(--display);font-size:1rem}
+.ex span{color:var(--muted);font-size:.93rem}
+.tag{display:inline-block;font:500 .68rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--madder);margin-bottom:2px}
+.tablebox{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.95rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--tint)}
+tr:last-child td{border-bottom:0}
+.key{background:var(--tint);border-left:4px solid var(--madder);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+.key strong{color:var(--madder)}
+.poem{font-family:var(--mono);font-size:.9rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;white-space:pre;overflow-x:auto;line-height:1.7}
+.poem .n{color:var(--gold)}
+.fib{display:flex;align-items:flex-end;gap:4px;height:70px;margin:10px 0}
+.fib i{display:block;width:18px;background:var(--indigo);border-radius:3px 3px 0 0;font:500 .65rem var(--mono);color:var(--bg);text-align:center;font-style:normal}
+/* quiz */
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;margin:18px 0 8px}
+.progress{flex:1 1 180px;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress div{height:100%;background:var(--madder);width:0;transition:width .3s}
+.count{font:500 .85rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.qtopic{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--madder)}
+.qtext{font:700 1.2rem/1.35 var(--display);margin:8px 0 16px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--indigo)}
+.opt .l{font:700 .85rem var(--mono);color:var(--muted);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--tint);font-size:.95rem}
+.explain b.ok{color:var(--ok)} .explain b.no{color:var(--bad)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{font:700 1rem var(--display);padding:10px 18px;border-radius:999px;border:0;background:var(--indigo);color:var(--bg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--indigo);border:1.5px solid var(--indigo)}
+.score{font:800 3.4rem var(--display);color:var(--indigo);font-variant-numeric:tabular-nums;line-height:1}
+.missed{margin-top:14px;display:grid;gap:8px}
+.missed div{border-left:3px solid var(--bad);padding:6px 12px;background:var(--bg);border-radius:0 8px 8px 0;font-size:.93rem}
+.missed em{color:var(--ok);font-style:normal;font-weight:600}
+.small{font-size:.88rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style><style>
+.calc>*{min-width:0}
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;display:grid;gap:10px}
+.calc label{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:grid;gap:4px}
+.calc textarea{font:500 .95rem/1.6 var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0;resize:vertical}
+.calc textarea:focus{outline:none;border-color:var(--indigo)}
+.wins{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
+.win{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.win b{display:block;font:800 1.5rem var(--display);color:var(--indigo)}
+.flag{font-size:.92rem;padding:8px 12px;border-radius:8px;background:var(--tint)}
+.flag.bad{border-left:3px solid var(--bad)}
+.flag.ok{border-left:3px solid var(--ok)}
+.calc details{border-top:1px solid var(--line);padding-top:8px}
+.calc summary{cursor:pointer;font:700 .95rem var(--display)}
+.calc td{white-space:nowrap}
+.calc input{font:500 1rem var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.calc input:focus{outline:none;border-color:var(--indigo)}
+.calc .row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+.calc .err{color:var(--bad);font-size:.92rem}
+.calc .sub{color:var(--muted);font-size:.88rem}
+.calc .presets{display:flex;flex-wrap:wrap;gap:6px}
+.calc .presets button{font:500 .78rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink);cursor:pointer}
+.calc table{min-width:0}
+.calc td,.calc th{font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--madder);border-radius:99px}
+.tt td,.tt th{text-align:center;font-family:var(--mono);font-size:.85rem}
+.tt th{text-transform:none;letter-spacing:0}
+.tt th.fin{background:var(--indigo);color:var(--bg)}
+.tv{color:var(--ok);font-weight:700}.fv{color:var(--bad)}
+.symbtn{font:700 1.05rem var(--mono)!important;min-width:2.6em}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:1px 5px;border-radius:4px}
+</style>
+<div class="wrap">
+<header>
+  <p style="margin:0 0 8px"><a href="index.html">← All modules</a></p>
+  <div class="eyebrow">MATH 10 · Module 2</div>
+  <h1>Logic and Reasoning</h1>
+  <div class="band" style="width:140px"></div>
+  <p class="lede">A reviewer on statements, connectives, truth tables, negation, the conditional, valid arguments, fallacies, and inductive vs. deductive reasoning. Includes a truth table builder and a quiz.</p>
+</header>
+
+<nav role="tablist">
+  <button id="tab-rev" role="tab" aria-selected="true" data-view="reviewer">Reviewer</button>
+  <button id="tab-quiz" role="tab" aria-selected="false" data-view="quiz">Quiz</button>
+</nav>
+
+<main id="reviewer">
+  <div class="toc">
+    <a href="#s-stmt">1 Statements</a><a href="#s-conn">Connectives</a><a href="#calc-tt">Truth table builder</a><a href="#s-neg">2 Negation</a><a href="#s-cond">3 Conditional</a><a href="#s-arg">4 Arguments</a><a href="#s-fall">Fallacies</a><a href="#s-ind">5 Reasoning</a>
+  </div>
+
+  <section id="s-stmt">
+    <div class="band"></div>
+    <h2>1. Mathematical Statements</h2>
+    <p>A <strong>mathematical statement</strong> is a declarative sentence that is either <strong>true or false, but not both</strong>. We name statements with lowercase letters p, q, r, s….</p>
+    <div class="examples">
+      <div class="ex"><span class="tag">Statements</span><b>Have a truth value</b><span>1 + 1 = 2 (T) · 2 + 3 = 6 (F) · All roses are red (F) · The Philippines has more than 7,100 islands (T) · 7 is an odd number (T) · “For all numbers x, x + 3 = 0” (F)</span></div>
+      <div class="ex"><span class="tag">Not statements</span><b>No definite truth value</b><span>Questions, commands, exclamations (Happy Birthday! · Message me.) · expressions like 5 + 1 · open sentences like x + 3 = 0 · opinions or vague claims (Math is interesting · 7 is a lucky number)</span></div>
+    </div>
+  </section>
+
+  <section id="s-conn">
+    <div class="band"></div>
+    <h2>1.2 Connectives</h2>
+    <div class="tablebox"><table>
+      <tr><th>Name</th><th>Symbol</th><th>Read as</th><th>True when…</th></tr>
+      <tr><td><b>Conjunction</b></td><td>p ∧ q</td><td>p and q</td><td>both are true</td></tr>
+      <tr><td><b>Disjunction</b></td><td>p ∨ q</td><td>p or q</td><td>at least one is true (false only if both are false)</td></tr>
+      <tr><td><b>Conditional</b></td><td>p → q</td><td>if p then q</td><td>always, <b>except</b> when p is T and q is F</td></tr>
+      <tr><td><b>Biconditional</b></td><td>p ↔ q</td><td>p if and only if q</td><td>p and q have the same truth value</td></tr>
+      <tr><td><b>Negation</b></td><td>~p</td><td>not p</td><td>p is false</td></tr>
+    </table></div>
+    <p>In p → q, <strong>p is the premise</strong> (hypothesis) and <strong>q is the conclusion</strong>. The biconditional means (p → q) ∧ (q → p). All connectives are binary except negation, which works on one statement.</p>
+    <div class="tablebox"><table class="tt">
+      <tr><th>p</th><th>q</th><th class="fin">p ∧ q</th><th class="fin">p ∨ q</th><th class="fin">p → q</th><th class="fin">p ↔ q</th></tr>
+      <tr><td class="tv">T</td><td class="tv">T</td><td class="tv">T</td><td class="tv">T</td><td class="tv">T</td><td class="tv">T</td></tr>
+      <tr><td class="tv">T</td><td class="fv">F</td><td class="fv">F</td><td class="tv">T</td><td class="fv">F</td><td class="fv">F</td></tr>
+      <tr><td class="fv">F</td><td class="tv">T</td><td class="fv">F</td><td class="tv">T</td><td class="tv">T</td><td class="fv">F</td></tr>
+      <tr><td class="fv">F</td><td class="fv">F</td><td class="fv">F</td><td class="fv">F</td><td class="tv">T</td><td class="tv">T</td></tr>
+    </table></div>
+    <p><strong>Number of rows:</strong> n statements give <strong>2<sup>n</sup></strong> rows (2 letters → 4, 3 letters → 8). Work from the innermost brackets outward.</p>
+    <h3>Implication and equivalence</h3>
+    <ul>
+      <li><strong>Implication</strong> p ⇒ q: p materially implies q (“If it is a cat, then it is a mammal”). A conditional that is always true.</li>
+      <li><strong>Equivalence</strong> p ⇔ q: the two can replace each other (“A polygon is a triangle iff it has three sides”). Two statements are equivalent when their truth table columns match in every row.</li>
+    </ul>
+
+    <div class="calc" id="calc-tt">
+      <h3 style="margin:0">Truth table builder</h3>
+      <div class="sub">Type a statement with letters p, q, r, s. Tap a symbol to insert it, or type <code>~</code> <code>&amp;</code> <code>|</code> (or <code>v</code>) <code>-&gt;</code> <code>&lt;-&gt;</code>. Add a second statement to test whether the two are equivalent.</div>
+      <div class="presets"><button class="symbtn" data-s="~">~</button><button class="symbtn" data-s=" ∧ ">∧</button><button class="symbtn" data-s=" ∨ ">∨</button><button class="symbtn" data-s=" → ">→</button><button class="symbtn" data-s=" ↔ ">↔</button><button class="symbtn" data-s="(">(</button><button class="symbtn" data-s=")">)</button></div>
+      <div class="row">
+        <label for="tta">Statement<input id="tta" value="(~p ∧ q) → ~r" spellcheck="false" autocomplete="off"></label>
+        <label for="ttb">Compare with (optional)<input id="ttb" value="" spellcheck="false" autocomplete="off"></label>
+      </div>
+      <div class="presets" id="ttpre"></div>
+      <div id="ttout"></div>
+    </div>
+  </section>
+
+  <section id="s-neg">
+    <div class="band"></div>
+    <h2>2. Negation</h2>
+    <h3>Simple statements</h3>
+    <div class="tablebox"><table>
+      <tr><th>Statement</th><th>Correct negation</th><th>Common mistake</th></tr>
+      <tr><td>1 + 1 = 2</td><td>1 + 1 ≠ 2</td><td></td></tr>
+      <tr><td>All roses are red.</td><td>Not all roses are red. (= Some roses are not red.)</td><td>✗ All roses are not red. ✗ All roses are pink.</td></tr>
+      <tr><td>more than 7,000</td><td><b>at most</b> 7,000</td><td>✗ less than 7,000</td></tr>
+      <tr><td>at least 18</td><td><b>less than</b> 18</td><td>✗ at most 18</td></tr>
+      <tr><td>x + y ≤ z</td><td>x + y &gt; z</td><td>✗ x + y ≥ z</td></tr>
+    </table></div>
+    <p class="small">Why “more than” flips to “at most”: for two numbers, exactly one of &lt;, =, &gt; holds. Ruling out one leaves the other two together.</p>
+    <h3>Compound statements (De Morgan's laws)</h3>
+    <div class="poem">~(p ∧ q)  ⇔  ~p ∨ ~q        flip ∧ to ∨, negate both
+~(p ∨ q)  ⇔  ~p ∧ ~q        flip ∨ to ∧, negate both
+~(p → q)  ⇔   p ∧ ~q        “p happened, but q didn't”</div>
+    <p><em>“Jose Rizal is intelligent and nationalistic”</em> → <em>“Jose Rizal is not intelligent <b>or</b> he is not nationalistic.”</em></p>
+    <h3>Quantifiers</h3>
+    <div class="tablebox"><table>
+      <tr><th>Statement</th><th>Negation</th></tr>
+      <tr><td>All A are B.</td><td>Some A are not B. (Not all A are B.)</td></tr>
+      <tr><td>Some A are B.</td><td>No A is B.</td></tr>
+      <tr><td>No A is B.</td><td>Some A are B.</td></tr>
+      <tr><td>Some A are not B.</td><td>All A are B.</td></tr>
+    </table></div>
+    <div class="key"><strong>Module check:</strong> Example 2.3 gives the negation of “No roses are red” as “Not all roses are red.” That's an error. The negation is <b>“Some roses are red”</b>: if “none are red” is false, then at least one is red. “Not all roses are red” is actually true whenever no roses are red, so it can't be the negation.</div>
+  </section>
+
+  <section id="s-cond">
+    <div class="band"></div>
+    <h2>3. The Conditional</h2>
+    <p>“If p then q” has many equivalent forms. Using <em>If it is a bird, then it flies</em>:</p>
+    <div class="tablebox"><table>
+      <tr><th>Form</th><th>Example</th></tr>
+      <tr><td>q if p</td><td>It flies if it is a bird.</td></tr>
+      <tr><td>p only if q</td><td>It is a bird only if it flies.</td></tr>
+      <tr><td>p is sufficient for q</td><td>Being a bird is sufficient for flying.</td></tr>
+      <tr><td>q is necessary for p</td><td>Flying is necessary for being a bird.</td></tr>
+      <tr><td>All p are q (universal)</td><td>All birds fly.</td></tr>
+      <tr><td>Either not p or q (~p ∨ q)</td><td>Either it is not a bird or it flies.</td></tr>
+    </table></div>
+    <p class="small">Tip: “only if” points to the conclusion. “p only if q” is p → q, not q → p.</p>
+    <h3>Converse, inverse, contrapositive</h3>
+    <div class="tablebox"><table>
+      <tr><th>Name</th><th>Form</th><th>Bird example</th><th>Same as p → q?</th></tr>
+      <tr><td><b>Conditional</b></td><td>p → q</td><td>If it's a bird, it flies.</td><td>—</td></tr>
+      <tr><td><b>Converse</b></td><td>q → p</td><td>If it flies, it's a bird.</td><td>No</td></tr>
+      <tr><td><b>Inverse</b></td><td>~p → ~q</td><td>If it's not a bird, it doesn't fly.</td><td>No</td></tr>
+      <tr><td><b>Contrapositive</b></td><td>~q → ~p</td><td>If it doesn't fly, it's not a bird.</td><td><b>Yes</b></td></tr>
+    </table></div>
+    <p>A conditional is equivalent to its <strong>contrapositive</strong>. The converse and inverse are equivalent to each other (they're contrapositives of each other), but not to the original.</p>
+    <p class="small">The module's definition list has a typo, writing the contrapositive as ~p → ~q. The truth table and remark just before it show the correct form, ~q → ~p.</p>
+  </section>
+
+  <section id="s-arg">
+    <div class="band"></div>
+    <h2>4. Valid and Invalid Arguments</h2>
+    <p>An argument has premises p₁, …, pₙ and a conclusion q. It is <strong>valid</strong> if, assuming all the premises are true, the conclusion must be true. Validity is about the <em>form</em>, not whether the premises are actually true. A valid argument with true premises is called <strong>sound</strong>. (Lewis Carroll, author of <em>Alice in Wonderland</em>, wrote logic puzzles to train this.)</p>
+    <h3>Euler diagrams</h3>
+    <ul>
+      <li><strong>All A are B:</strong> circle A inside circle B.</li>
+      <li><strong>Some A are B:</strong> overlapping circles.</li>
+      <li><strong>No A is B:</strong> separate circles.</li>
+      <li>To show <strong>invalid</strong>, draw one diagram that fits every premise but breaks the conclusion. If two different diagrams fit the premises but give different conclusions, the argument is invalid.</li>
+    </ul>
+    <p><em>All dogs are hairy. Cotton is a dog. ∴ Cotton is hairy.</em> Valid: x is in the dogs circle, which is inside the hairy circle.<br><em>All dogs are hairy. Cotton is hairy. ∴ Cotton is a dog.</em> Invalid: x can be in the hairy circle but outside the dogs circle.</p>
+    <h3>Valid forms (always tautologies)</h3>
+    <div class="examples">
+      <div class="ex"><span class="tag">Modus ponens</span><b>p → q, p ∴ q</b><span>All dogs are hairy. Cotton is a dog. ∴ Cotton is hairy.</span></div>
+      <div class="ex"><span class="tag">Modus tollens</span><b>p → q, ~q ∴ ~p</b><span>All dogs are hairy. Donut is not hairy. ∴ Donut is not a dog.</span></div>
+      <div class="ex"><span class="tag">Syllogism</span><b>p → q, q → r ∴ p → r</b><span>Cats are mammals. Mammals are animals. ∴ Cats are animals.</span></div>
+    </div>
+    <h3>Invalid forms</h3>
+    <div class="examples">
+      <div class="ex"><span class="tag">Fallacy of the converse</span><b>p → q, q ∴ p</b><span>All UP students are diligent. Maria is diligent. ∴ Maria is a UP student. ✗</span></div>
+      <div class="ex"><span class="tag">Fallacy of the inverse</span><b>p → q, ~p ∴ ~q</b><span>If you can add, you can subtract. You can't add. ∴ You can't subtract. ✗</span></div>
+    </div>
+    <p class="small">To test any of these, load it in the truth table builder above. A valid form gives all T's in the final column (a tautology). The fallacies each have one F row.</p>
+    <p class="small">Module check (second Example 4.6): its answer key says argument 1 is both a converse and an inverse fallacy. Argument 1 (can't add → can't subtract) is the <b>inverse</b>, and argument 2 (Maria is diligent → UP student) is the <b>converse</b>.</p>
+  </section>
+
+  <section id="s-fall">
+    <div class="band"></div>
+    <h2>4.4 Other Fallacies</h2>
+    <div class="tablebox"><table>
+      <tr><th>Fallacy</th><th>What happens</th><th>Example</th></tr>
+      <tr><td><b>Ad hominem</b></td><td>Attacks the person, not the argument</td><td>Maria wears leather shoes, so she can't be a vegetarian.</td></tr>
+      <tr><td><b>Ad populum</b></td><td>True because many believe it</td><td>55% think X is dangerous, so ban X.</td></tr>
+      <tr><td><b>Appeal to authority</b></td><td>A famous non-expert supports it</td><td>Brand X is the best toothpaste since our president uses it.</td></tr>
+      <tr><td><b>False cause</b></td><td>Links two unrelated events</td><td>I sleep and the sun sets, so my sleeping makes the sun set.</td></tr>
+      <tr><td><b>Hasty generalization</b></td><td>Generalizes from too few cases</td><td>I'm bad at tennis and volleyball, so I'm bad at all sports.</td></tr>
+    </table></div>
+  </section>
+
+  <section id="s-ind">
+    <div class="band"></div>
+    <h2>5. Inductive and Deductive Reasoning</h2>
+    <div class="examples">
+      <div class="ex"><span class="tag">Deductive</span><b>General → specific</b><span>All men are mortal. Socrates is a man. ∴ Socrates is mortal. (Modus ponens, modus tollens and syllogism are all deductive.)</span></div>
+      <div class="ex"><span class="tag">Inductive</span><b>Specific → general</b><span>2, 12 and 22 are even, so all numbers ending in 2 are even. The conclusion can be false, so it still needs a deductive proof.</span></div>
+    </div>
+    <p><strong>Induction can fail:</strong> 2²−1 = 3, 2³−1 = 7, 2⁵−1 = 31 are all prime, but 2¹¹−1 = 2047 = 23 × 89 is not. Primes of the form 2<sup>p</sup>−1 are <strong>Mersenne primes</strong> (after Marin Mersenne).</p>
+    <p><strong>Pattern problems:</strong> the Fibonacci sequence 1, 1, 2, 3, 5, 8, <b>13</b> (each term is the sum of the two before). For the triangle puzzle (1–6, each side = 12), put 4, 5, 6 on the corners.</p>
+  </section>
+  <p class="small" style="margin-top:28px">Ready? <a href="#quiz">Take the quiz →</a></p>
+</main>
+
+<main id="quiz" hidden>
+  <div class="qbar"><div class="progress"><div id="pbar"></div></div><span class="count" id="count"></span></div>
+  <div class="card" id="qcard"></div>
+</main>
+</div>
+
+<script>
+const Q=[
+["Statements","Which is a mathematical statement?",["x + 3 = 0","Message me.","7 is an odd number.","7 is a lucky number."],2,"It's declarative and definitely true. x + 3 = 0 is an open sentence, and “lucky” is a matter of opinion."],
+["Statements","Which is NOT a mathematical statement?",["The chairs are pink or the earth is round.","If cats are mammals, then mice are reptiles.","3 + 4 − 5","Math 10 is a GE course."],2,"An expression has no truth value. The compound sentences do."],
+["Connectives","p ∧ q is true when:",["at least one is true","both are true","exactly one is true","both are false"],1,"Conjunction needs both."],
+["Connectives","p ∨ q is false only when:",["both are false","both are true","p is false","q is false"],0,"Disjunction needs at least one true statement."],
+["Connectives","p → q is false only when:",["p is F and q is T","p is T and q is F","both are F","both are T"],1,"A true premise with a false conclusion breaks the promise."],
+["Connectives","p ↔ q is true when:",["p is true","p and q have the same truth value","p and q differ","q is false"],1,"Both T or both F."],
+["Connectives","Let p, q, r be true. What is p → ~q?",["True","False","Cannot be determined","Depends on r"],1,"~q is F, so T → F is false."],
+["Connectives","Let p, q, r be true. What is p ∨ (q ∧ r)?",["True","False","Cannot be determined","Only true if s is true"],0,"q ∧ r is T, so the disjunction is T."],
+["Truth tables","A truth table with 3 statements has how many rows?",["3","6","8","9"],2,"2³ = 8."],
+["Negation","The negation of “All roses are red” is:",["All roses are not red.","No roses are red.","Some roses are not red.","All roses are pink."],2,"Equivalently, “Not all roses are red.”"],
+["Negation","The negation of “Some roses are red” is:",["Some roses are not red.","No roses are red.","All roses are red.","Not all roses are red."],1,"If it's false that some are red, then none are."],
+["Negation","The negation of “The Philippines has more than 7,000 islands” is:",["…less than 7,000 islands.","…at most 7,000 islands.","…at least 7,000 islands.","…exactly 7,000 islands."],1,"Not more than means equal to or less than."],
+["Negation","By De Morgan's law, ~(p ∧ q) is equivalent to:",["~p ∧ ~q","~p ∨ ~q","p ∨ q","~p → q"],1,"Negate both parts and switch ∧ to ∨."],
+["Negation","Negate: “1 + 1 < 5 or all roses are red.”",["1 + 1 > 5 or not all roses are red.","1 + 1 ≥ 5 and not all roses are red.","1 + 1 ≥ 5 or some roses are red.","1 + 1 < 5 and no roses are red."],1,"~(p ∨ q) = ~p ∧ ~q, and the negation of < is ≥."],
+["Conditional","“It is a bird only if it flies” is the same as:",["If it flies, it is a bird.","If it is a bird, it flies.","It flies only if it is a bird.","If it is not a bird, it does not fly."],1,"“p only if q” means p → q."],
+["Conditional","“Flying is necessary for being a bird” means:",["bird → flies","flies → bird","not bird → not flies","bird ↔ flies"],0,"The necessary part is the conclusion: q is necessary for p means p → q."],
+["Conditional","The contrapositive of p → q is:",["q → p","~p → ~q","~q → ~p","p → ~q"],2,"Swap and negate both parts."],
+["Conditional","Which is equivalent to p → q?",["Its converse","Its inverse","Its contrapositive","Its negation"],2,"Their truth tables match in every row."],
+["Conditional","The inverse of “If it is an even number, then it is divisible by two” is:",["If it is divisible by two, it is even.","If it is not even, it is not divisible by two.","If it is not divisible by two, it is not even.","It is even and not divisible by two."],1,"Inverse: ~p → ~q."],
+["Arguments","An argument is valid when:",["its conclusion is true","the conclusion must be true whenever the premises are true","all premises are facts","most people agree with it"],1,"Validity is about form. Premises are assumed true."],
+["Arguments","“If I sing, then it rains. It is not raining. Therefore, I did not sing.” This is:",["Modus ponens","Modus tollens","Syllogism","Fallacy of the converse"],1,"p → q, ~q ∴ ~p."],
+["Arguments","“All cats are mammals. All mammals are animals. Therefore, all cats are animals.” This is:",["Modus ponens","Modus tollens","Syllogism","Fallacy of the inverse"],2,"p → q, q → r ∴ p → r."],
+["Arguments","“All dogs are hairy. Cotton is hairy. Therefore, Cotton is a dog.” This is:",["Valid, modus ponens","Fallacy of the converse","Fallacy of the inverse","Valid, syllogism"],1,"p → q, q ∴ p. Cotton could be a hairy cat."],
+["Arguments","“All birds have feathers. I am not a bird. Therefore, I have no feathers.” This is:",["Modus tollens","Fallacy of the converse","Fallacy of the inverse","Valid syllogism"],2,"p → q, ~p ∴ ~q."],
+["Arguments","“All parrots are birds. Some birds are colorful. Therefore, some parrots are colorful.” The argument is:",["Valid","Invalid","A tautology","Modus ponens"],1,"The colorful birds might all be non-parrots."],
+["Arguments","In an Euler diagram, “No A is B” is drawn as:",["A inside B","Overlapping circles","Two separate circles","B inside A"],2,"The sets share no elements."],
+["Arguments","A statement that is true in every row of its truth table is a:",["Contradiction","Tautology","Fallacy","Converse"],1,"Valid argument forms give tautologies."],
+["Fallacies","“Brand X is the best toothpaste since our president uses it” is:",["Ad hominem","Ad populum","Appeal to authority","False cause"],2,"The president isn't a dental expert."],
+["Fallacies","“Maria wears leather shoes, so she cannot be a vegetarian” is:",["Ad hominem","Hasty generalization","False cause","Ad populum"],0,"It targets the person instead of the claim."],
+["Fallacies","“I don't excel in tennis or volleyball. So I don't excel in sports” is:",["False cause","Hasty generalization","Appeal to authority","Ad populum"],1,"Too few examples for a sweeping claim."],
+["Reasoning","Reasoning from a general statement to a specific case is:",["Inductive","Deductive","Abductive","Circular"],1,"Example: All men are mortal; Socrates is a man; so Socrates is mortal."],
+["Reasoning","Which shows that inductive conclusions can fail?",["2¹¹ − 1 = 2047 = 23 × 89","1 + 1 = 2","All men are mortal","The Fibonacci sequence"],0,"3, 7, 31 suggested 2ᵖ − 1 is always prime, but 2047 isn't."],
+["Reasoning","The next number in 1, 1, 2, 3, 5, 8, ? is:",["11","12","13","16"],2,"Add the two previous terms: 5 + 8."]
+];
+let order=[],i=0,score=0,answered=false,missed=[];
+const card=document.getElementById('qcard'),pbar=document.getElementById('pbar'),cnt=document.getElementById('count');
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a}
+function start(){Q.forEach(x=>{const ok=x[2][x[3]];x[2]=shuffle(x[2]);x[3]=x[2].indexOf(ok);});order=shuffle(Q.map((_,k)=>k));i=0;score=0;missed=[];render()}
+function render(){
+  answered=false;
+  pbar.style.width=(i/order.length*100)+'%';
+  if(i>=order.length)return finish();
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  card.innerHTML=`<div class="qtopic">${t}</div><div class="qtext">${q}</div><div class="opts">${opts.map((o,k)=>`<button class="opt" id="opt${k}" data-k="${k}"><span class="l">${'ABCD'[k]}</span><span>${o}</span></button>`).join('')}</div><div id="fb"></div>`;
+  card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+}
+function pick(k){
+  if(answered)return;answered=true;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  const btns=card.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  btns[ans].classList.add('right');
+  const ok=k===ans;
+  if(ok)score++;else{btns[k].classList.add('wrong');missed.push([q,opts[ans]])}
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  document.getElementById('fb').innerHTML=`<div class="explain"><b class="${ok?'ok':'no'}">${ok?'Correct.':'Not quite.'}</b> ${why}</div><div class="actions"><button class="btn" id="next">${i+1<order.length?'Next question':'See results'}</button></div>`;
+  const n=document.getElementById('next');n.onclick=()=>{i++;render()};n.focus();
+}
+function finish(){
+  const pct=Math.round(score/order.length*100);
+  cnt.textContent=`Done · ${score}/${order.length}`;
+  const msg=pct>=90?'Excellent. You know this module well.':pct>=75?'Good work. Review the items below.':pct>=50?'Getting there. Go over the sections you missed.':'Revisit the reviewer, then try again.';
+  card.innerHTML=`<div class="qtopic">Results</div><div class="score">${score}<span style="font-size:1.4rem;color:var(--muted)"> / ${order.length}</span></div><p>${pct}% · ${msg}</p>${missed.length?`<h3>Review these</h3><div class="missed">${missed.map(([q,a])=>`<div>${q}<br><em>Answer: ${a}</em></div>`).join('')}</div>`:''}<div class="actions"><button class="btn" id="again">Retake (shuffled)</button><button class="btn ghost" id="back">Back to reviewer</button></div>`;
+  document.getElementById('again').onclick=start;
+  document.getElementById('back').onclick=()=>{location.hash='reviewer';};
+}
+function show(v){
+  const quiz=v==='quiz';
+  document.getElementById('reviewer').hidden=quiz;
+  document.getElementById('quiz').hidden=!quiz;
+  document.getElementById('tab-rev').setAttribute('aria-selected',!quiz);
+  document.getElementById('tab-quiz').setAttribute('aria-selected',quiz);
+  if(quiz&&!order.length)start();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{location.hash=b.dataset.view});
+function route(){const h=location.hash.slice(1);if(h==='quiz')show('quiz');else if(h==='reviewer'||!h)show('reviewer');else{show('reviewer');const el=document.getElementById(h);if(el)el.scrollIntoView();}}
+window.addEventListener('hashchange',route);route();
+function tokenize(s){const t=[];s=s.replace(/<->|<=>|↔|⇔/g,' ↔ ').replace(/->|=>|→|⇒/g,' → ').replace(/[∧&^]|\band\b/gi,' ∧ ').replace(/[∨|]|\bor\b|\bv\b/gi,' ∨ ').replace(/[~¬!]|\bnot\b/gi,' ~ ').replace(/[\[{]/g,' ( ').replace(/[\]}]/g,' ) ').replace(/\(/g,' ( ').replace(/\)/g,' ) ');
+  for(const w of s.split(/\s+/).filter(Boolean)){if(/^[a-uw-z]$/i.test(w))t.push({v:w.toLowerCase()});else if('~∧∨→↔()'.includes(w))t.push({o:w});else throw new Error(`I don't recognize “${w}”. Use letters like p, q, r and the buttons for symbols.`)}return t}
+function parseExpr(s){const t=tokenize(s);let i=0;const peek=()=>t[i],eat=o=>{if(t[i]&&t[i].o===o){i++;return true}return false};
+  const bin=(lvl)=>{const ops=['↔','→','∨','∧'];if(lvl===4)return un();let l=bin(lvl+1);const op=ops[lvl];
+    if(op==='→'){if(eat('→')){const r=bin(lvl);return{op,l,r}}return l}
+    while(eat(op)){const r=bin(lvl+1);l={op,l,r}}return l};
+  const un=()=>{if(eat('~'))return{op:'~',l:un()};if(eat('(')){const e=bin(0);if(!eat(')'))throw new Error('A bracket is missing its closing “)”.');e.paren=true;return e}const x=peek();if(x&&x.v){i++;return{v:x.v}}throw new Error(x?`Something is missing before “${x.o}”.`:'The statement ends too early.')};
+  if(!t.length)throw new Error('Type a statement, like (p → q) ∧ p.');const e=bin(0);if(i<t.length)throw new Error(`Unexpected “${t[i].o||t[i].v}”. Check your brackets and connectives.`);return e}
+function fmtE(e,top=true){if(e.v)return e.v;if(e.op==='~')return '~'+fmtE(e.l,false);const s=`${fmtE(e.l,false)} ${e.op} ${fmtE(e.r,false)}`;return top?s:`(${s})`}
+function vars(e,acc=new Set()){if(e.v)acc.add(e.v);else{vars(e.l,acc);if(e.r)vars(e.r,acc)}return acc}
+function evalE(e,env){if(e.v)return env[e.v];const a=evalE(e.l,env);if(e.op==='~')return!a;const b=evalE(e.r,env);return e.op==='∧'?a&&b:e.op==='∨'?a||b:e.op==='→'?(!a||b):a===b}
+function subs(e,acc=[]){if(e.v)return acc;subs(e.l,acc);if(e.r)subs(e.r,acc);const k=fmtE(e);if(!acc.some(x=>fmtE(x)===k))acc.push(e);return acc}
+function truthTable(exprs){const vs=[...new Set(exprs.flatMap(e=>[...vars(e)]))].sort();const n=vs.length;const rows=[];
+  for(let m=0;m<(1<<n);m++){const env={};vs.forEach((v,i)=>env[v]=!((m>>(n-1-i))&1));rows.push(env)}return{vs,rows}}
+if(typeof module!=='undefined')module.exports={parseExpr,truthTable,evalE,fmtE,subs};
+function runTT(){
+  const out=document.getElementById('ttout');const a=document.getElementById('tta').value.trim(),b=document.getElementById('ttb').value.trim();
+  let ea,eb=null;try{ea=parseExpr(a);if(b)eb=parseExpr(b)}catch(x){out.innerHTML=`<p class="err">${x.message}</p>`;return}
+  if(vars(ea).size+(eb?vars(eb).size:0)>5&&new Set([...vars(ea),...(eb?vars(eb):[])]).size>4){out.innerHTML='<p class="err">Use at most four letters (that is already 16 rows).</p>';return}
+  const {vs,rows}=truthTable(eb?[ea,eb]:[ea]);
+  const cols=subs(ea);if(eb)subs(eb).forEach(x=>{if(!cols.some(c=>fmtE(c)===fmtE(x)))cols.push(x)});
+  const finals=[fmtE(ea)].concat(eb?[fmtE(eb)]:[]);
+  const TF=v=>`<td class="${v?'tv':'fv'}">${v?'T':'F'}</td>`;
+  const res=e=>{const v=rows.map(r=>evalE(e,r));return v.every(Boolean)?'a <b>tautology</b> (always true)':v.some(Boolean)?'sometimes true, sometimes false':'a <b>contradiction</b> (always false)'};
+  let verdict=`<p>${fmtE(ea)} is ${res(ea)}.</p>`;
+  if(eb){const same=rows.every(r=>evalE(ea,r)===evalE(eb,r));verdict+=`<div class="flag ${same?'ok':'bad'}">${same?`<b>Equivalent.</b> The last two columns match in every row, so ${fmtE(ea)} ⇔ ${fmtE(eb)}.`:`<b>Not equivalent.</b> They differ in row ${rows.findIndex(r=>evalE(ea,r)!==evalE(eb,r))+1}.`}</div>`}
+  out.innerHTML=`<div class="tablebox" style="margin:0"><table class="tt"><tr>${vs.map(v=>`<th>${v}</th>`).join('')}${cols.map(c=>`<th class="${finals.includes(fmtE(c))?'fin':''}">${fmtE(c)}</th>`).join('')}</tr>${rows.map(r=>`<tr>${vs.map(v=>TF(r[v])).join('')}${cols.map(c=>TF(evalE(c,r))).join('')}</tr>`).join('')}</table></div><p class="sub">${vs.length} letters → 2<sup>${vs.length}</sup> = ${rows.length} rows. Columns build up from the inside out; the highlighted column is the full statement.</p>`+verdict;
+}
+let lastTT=null;
+document.querySelectorAll('.symbtn').forEach(btn=>btn.addEventListener('click',()=>{const el=lastTT||document.getElementById('tta');const s=el.selectionStart??el.value.length;el.value=el.value.slice(0,s)+btn.dataset.s+el.value.slice(el.selectionEnd??s);el.focus();el.selectionStart=el.selectionEnd=s+btn.dataset.s.length;runTT()}));
+['tta','ttb'].forEach(id=>{const el=document.getElementById(id);el.addEventListener('input',runTT);el.addEventListener('focus',()=>lastTT=el)});
+const TP=[['Modus ponens','[(p → q) ∧ p] → q',''],['Modus tollens','[(p → q) ∧ ~q] → ~p',''],['Syllogism','[(p → q) ∧ (q → r)] → (p → r)',''],['Fallacy of the converse','[(p → q) ∧ q] → p',''],['De Morgan','~(p ∧ q)','~p ∨ ~q'],['Contrapositive','p → q','~q → ~p'],['Converse ≠','p → q','q → p'],['Conditional as “or”','p → q','~p ∨ q']];
+document.getElementById('ttpre').innerHTML=TP.map((x,i)=>`<button data-i="${i}">${x[0]}</button>`).join('');
+document.getElementById('ttpre').onclick=e=>{const b=e.target.closest('button');if(!b)return;const x=TP[b.dataset.i];document.getElementById('tta').value=x[1];document.getElementById('ttb').value=x[2];runTT()};
+runTT();
+
+</script>
+
+</body>
+</html>

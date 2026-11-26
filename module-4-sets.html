@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Sets Reviewer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: single reading column, sticky tab bar (Reviewer / Quiz), woven-band motif as section dividers */
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --ink:#1b1d33; --muted:#5a5e7a; --line:#dcdfec;
+  --indigo:#2c3a8c; --madder:#b8323a; --gold:#c08a12; --tint:#e9ecf8; --ok:#1f7a4d; --bad:#b8323a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,7vw,3.1rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700;color:var(--indigo)}
+h3{font-size:1.12rem;font-weight:700;margin-top:1.4em}
+p{margin:.6em 0}
+a{color:var(--indigo)}
+header{padding-block:28px 12px}
+.eyebrow{font:500 .75rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--madder)}
+.lede{color:var(--muted);max-width:60ch}
+/* woven band */
+.band{height:14px;border-radius:2px;margin:6px 0 0;
+  background:
+   repeating-linear-gradient(90deg,var(--indigo) 0 10px,transparent 10px 20px),
+   repeating-linear-gradient(90deg,transparent 0 5px,var(--madder) 5px 10px,transparent 10px 20px),
+   var(--gold);
+  background-size:20px 7px,20px 7px,auto;background-position:0 0,10px 7px,0 0;background-repeat:repeat-x}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;gap:8px;border-bottom:1px solid var(--line)}
+nav button{flex:1;font:700 1rem var(--display);padding:10px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+nav button[aria-selected="true"]{background:var(--indigo);border-color:var(--indigo);color:var(--bg)}
+button:focus-visible,summary:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
+.toc a{font:500 .8rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted);background:var(--surface)}
+section{padding-block:28px 6px}
+section>.band{margin-bottom:14px;width:64px}
+ul{padding-left:1.2em;margin:.5em 0}
+li{margin:.25em 0}
+.examples{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));margin:12px 0}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.ex b{display:block;font-family:var(--display);font-size:1rem}
+.ex span{color:var(--muted);font-size:.93rem}
+.tag{display:inline-block;font:500 .68rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--madder);margin-bottom:2px}
+.tablebox{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.95rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--tint)}
+tr:last-child td{border-bottom:0}
+.key{background:var(--tint);border-left:4px solid var(--madder);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+.key strong{color:var(--madder)}
+.poem{font-family:var(--mono);font-size:.9rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;white-space:pre;overflow-x:auto;line-height:1.7}
+.poem .n{color:var(--gold)}
+.fib{display:flex;align-items:flex-end;gap:4px;height:70px;margin:10px 0}
+.fib i{display:block;width:18px;background:var(--indigo);border-radius:3px 3px 0 0;font:500 .65rem var(--mono);color:var(--bg);text-align:center;font-style:normal}
+/* quiz */
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;margin:18px 0 8px}
+.progress{flex:1 1 180px;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress div{height:100%;background:var(--madder);width:0;transition:width .3s}
+.count{font:500 .85rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.qtopic{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--madder)}
+.qtext{font:700 1.2rem/1.35 var(--display);margin:8px 0 16px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--indigo)}
+.opt .l{font:700 .85rem var(--mono);color:var(--muted);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--tint);font-size:.95rem}
+.explain b.ok{color:var(--ok)} .explain b.no{color:var(--bad)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{font:700 1rem var(--display);padding:10px 18px;border-radius:999px;border:0;background:var(--indigo);color:var(--bg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--indigo);border:1.5px solid var(--indigo)}
+.score{font:800 3.4rem var(--display);color:var(--indigo);font-variant-numeric:tabular-nums;line-height:1}
+.missed{margin-top:14px;display:grid;gap:8px}
+.missed div{border-left:3px solid var(--bad);padding:6px 12px;background:var(--bg);border-radius:0 8px 8px 0;font-size:.93rem}
+.missed em{color:var(--ok);font-style:normal;font-weight:600}
+.small{font-size:.88rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style><style>
+.calc>*{min-width:0}
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;display:grid;gap:10px}
+.calc label{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:grid;gap:4px}
+.calc textarea{font:500 .95rem/1.6 var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0;resize:vertical}
+.calc textarea:focus{outline:none;border-color:var(--indigo)}
+.wins{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
+.win{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.win b{display:block;font:800 1.5rem var(--display);color:var(--indigo)}
+.flag{font-size:.92rem;padding:8px 12px;border-radius:8px;background:var(--tint)}
+.flag.bad{border-left:3px solid var(--bad)}
+.flag.ok{border-left:3px solid var(--ok)}
+.calc details{border-top:1px solid var(--line);padding-top:8px}
+.calc summary{cursor:pointer;font:700 .95rem var(--display)}
+.calc td{white-space:nowrap}
+.calc input{font:500 1rem var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.calc input:focus{outline:none;border-color:var(--indigo)}
+.calc .row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+.calc .err{color:var(--bad);font-size:.92rem}
+.calc .sub{color:var(--muted);font-size:.88rem}
+.calc .presets{display:flex;flex-wrap:wrap;gap:6px}
+.calc .presets button{font:500 .78rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink);cursor:pointer}
+.calc table{min-width:0}
+.calc td,.calc th{font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--madder);border-radius:99px}
+.tt td,.tt th{text-align:center;font-family:var(--mono);font-size:.85rem}
+.tt th{text-transform:none;letter-spacing:0}
+.tt th.fin{background:var(--indigo);color:var(--bg)}
+.tv{color:var(--ok);font-weight:700}.fv{color:var(--bad)}
+.symbtn{font:700 1.05rem var(--mono)!important;min-width:2.6em}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:1px 5px;border-radius:4px}
+</style>
+<div class="wrap">
+<header>
+  <p style="margin:0 0 8px"><a href="index.html">← All modules</a></p>
+  <div class="eyebrow">MATH 10 · Module 4</div>
+  <h1>Sets</h1>
+  <div class="band" style="width:140px"></div>
+  <p class="lede">A reviewer on sets, operations, relations, survey problems, one-to-one correspondence, and the sizes of infinity. Includes a set calculator, a survey solver and a quiz.</p>
+</header>
+
+<nav role="tablist">
+  <button id="tab-rev" role="tab" aria-selected="true" data-view="reviewer">Reviewer</button>
+  <button id="tab-quiz" role="tab" aria-selected="false" data-view="quiz">Quiz</button>
+</nav>
+
+<main id="reviewer">
+  <div class="toc">
+    <a href="#s-sets">1.1 Sets</a><a href="#s-ops">1.2 Operations</a><a href="#calc-sets">Set calculator</a><a href="#s-rel">1.3 Relations</a><a href="#s-survey">1.4 Surveys</a><a href="#s-inf">2 Infinity</a>
+  </div>
+
+  <section id="s-sets">
+    <div class="band"></div>
+    <h2>1.1 Sets</h2>
+    <p>A <strong>set</strong> is a <strong>well-defined</strong> collection of objects: for any object, you can tell whether it is in the set or not. Its members are <strong>elements</strong>. Write x ∈ A (x is in A) or x ∉ A (x is not in A).</p>
+    <div class="examples">
+      <div class="ex"><span class="tag">Roster / enumeration</span><b>V = {a, e, i, o, u}</b><span>List the elements. E = {2, 4, 6, 8, …}</span></div>
+      <div class="ex"><span class="tag">Rule method</span><b>V = {x | x is a vowel}</b><span>Describe the elements. E = {x | x is a positive even number}</span></div>
+      <div class="ex"><span class="tag">Not a set</span><b>{x | x is a large number}</b><span>Membership isn't clear. 100 is large to some people but not to others. Same with {x | x is beautiful}.</span></div>
+    </div>
+    <ul>
+      <li>Order and repeats don't matter: {a, e, i, o, u} = {u, o, i, e, a}.</li>
+      <li><strong>Finite</strong> (you can list all elements) vs. <strong>infinite</strong>.</li>
+      <li><strong>Cardinality</strong> n(A) is the number of elements. n(V) = 5.</li>
+      <li><strong>Empty (null) set</strong>: { } or ∅, with no elements.</li>
+      <li><strong>Universal set U</strong>: all elements in the discussion, drawn as a rectangle in a Venn diagram.</li>
+    </ul>
+  </section>
+
+  <section id="s-ops">
+    <div class="band"></div>
+    <h2>1.2 Operations on Sets</h2>
+    <div class="tablebox"><table>
+      <tr><th>Operation</th><th>Definition</th><th>Logic link</th></tr>
+      <tr><td><b>Union</b> A ∪ B</td><td>{x | x ∈ A <b>or</b> x ∈ B}</td><td>like ∨</td></tr>
+      <tr><td><b>Intersection</b> A ∩ B</td><td>{x | x ∈ A <b>and</b> x ∈ B}</td><td>like ∧</td></tr>
+      <tr><td><b>Difference</b> A \ B</td><td>{x | x ∈ A and x ∉ B}</td><td></td></tr>
+      <tr><td><b>Complement</b> Aᶜ</td><td>{x | x ∈ U and x ∉ A}</td><td>like ~ (unary)</td></tr>
+      <tr><td><b>Cartesian product</b> A × B</td><td>{(a, b) | a ∈ A and b ∈ B}</td><td>ordered pairs</td></tr>
+    </table></div>
+    <div class="key"><strong>Module check:</strong> page 3 of the module swaps the words: it writes union with “and” and intersection with “or.” That's a typo. Union = <b>or</b>, intersection = <b>and</b>. The module's own worked answers (A ∪ B = {2, 3, 4, 6, 8, 9}, A ∩ B = {6}) use the correct meanings.</div>
+    <h3>Properties</h3>
+    <ul>
+      <li><strong>Commutative:</strong> A ∪ B = B ∪ A, A ∩ B = B ∩ A</li>
+      <li><strong>Associative:</strong> (A ∪ B) ∪ C = A ∪ (B ∪ C), and the same for ∩</li>
+      <li>Set difference is <strong>not</strong> commutative or associative: A \ B ≠ B \ A. Neither is the Cartesian product: A × B ≠ B × A.</li>
+    </ul>
+    <h3>Cardinality formulas</h3>
+    <div class="poem">n(A ∪ B) = n(A) + n(B) − n(A ∩ B)
+n(Aᶜ)    = n(U) − n(A)
+n(A \ B) = n(A) − n(A ∩ B)
+n(A × B) = n(A) · n(B)</div>
+    <p class="small">Why subtract n(A ∩ B)? Elements in both sets get counted twice when you add n(A) + n(B).</p>
+
+    <div class="calc" id="calc-sets">
+      <h3 style="margin:0">Set calculator</h3>
+      <div class="sub">Enter elements separated by commas. It starts with the module's Example 1.4.</div>
+      <div class="row">
+        <label for="su">U<input id="su" value="1, 2, 3, 4, 5, 6, 7, 8, 9" spellcheck="false"></label>
+        <label for="sa">A<input id="sa" value="2, 4, 6, 8" spellcheck="false"></label>
+        <label for="sb">B<input id="sb" value="3, 6, 9" spellcheck="false"></label>
+      </div>
+      <div id="sout"></div>
+    </div>
+  </section>
+
+  <section id="s-rel">
+    <div class="band"></div>
+    <h2>1.3 Relations on Sets</h2>
+    <div class="tablebox"><table>
+      <tr><th>Relation</th><th>Meaning</th></tr>
+      <tr><td><b>Equal</b> A = B</td><td>Exactly the same elements.</td></tr>
+      <tr><td><b>Subset</b> A ⊆ B</td><td>Every element of A is in B.</td></tr>
+      <tr><td><b>Proper subset</b> A ⊂ B</td><td>A ⊆ B, and B has at least one element not in A.</td></tr>
+      <tr><td><b>Equivalent</b> A ∼ B</td><td>Same number of elements: n(A) = n(B).</td></tr>
+      <tr><td><b>Disjoint</b></td><td>No common elements.</td></tr>
+    </table></div>
+    <p>Equal sets are always equivalent, but equivalent sets need not be equal: {a, e, i, o, u} ∼ {1, 2, 3, 4, 5}.</p>
+    <p><strong>= and ∼ are reflexive, symmetric and transitive.</strong> (⊆ is reflexive and transitive but not symmetric; ⊂ is transitive only.)</p>
+    <p class="small">Example: L = vowels in “abstemious” = {a, e, i, o, u} = V. M = letters in “abstemious,” so V ⊂ M.</p>
+  </section>
+
+  <section id="s-survey">
+    <div class="band"></div>
+    <h2>1.4 Survey Problems</h2>
+    <p><strong>Example 1.7:</strong> 200 residents; 135 exposed to chemical X, 85 to Y, 40 to both. <strong>Always start with the overlap</strong> and work outward.</p>
+    <div class="calc" id="calc-survey">
+      <h3 style="margin:0">Two-set survey solver</h3>
+      <div class="sub">Change the numbers or names to solve your own problem.</div>
+      <div class="row">
+        <label for="vnx">Name of set 1<input id="vnx" value="X"></label>
+        <label for="vny">Name of set 2<input id="vny" value="Y"></label>
+      </div>
+      <div class="row">
+        <label for="vu">Total surveyed n(U)<input id="vu" inputmode="numeric" value="200"></label>
+        <label for="vx">n(set 1)<input id="vx" inputmode="numeric" value="135"></label>
+        <label for="vy">n(set 2)<input id="vy" inputmode="numeric" value="85"></label>
+        <label for="vi">Both n(1 ∩ 2)<input id="vi" inputmode="numeric" value="40"></label>
+      </div>
+      <div id="vout4"></div>
+    </div>
+  </section>
+
+  <section id="s-inf">
+    <div class="band"></div>
+    <h2>2. Cardinalities of Infinite Sets</h2>
+    <h3>2.1 One-to-one correspondence</h3>
+    <p>A and B are in <strong>1-1 correspondence</strong> if every element of A pairs with exactly one element of B, and every element of B pairs with exactly one element of A (a <strong>bijection</strong>). Then A ∼ B. The pairing doesn't have to be unique.</p>
+    <h3>2.2 Countable infinity: ℵ₀</h3>
+    <p>n(ℕ) = <strong>ℵ₀</strong> (aleph-null), where ℕ = {1, 2, 3, …}.</p>
+    <div class="tablebox"><table>
+      <tr><th>Set</th><th>Pairing with ℕ</th><th>Cardinality</th></tr>
+      <tr><td>Even E = {2, 4, 6, …}</td><td>k ↔ 2k</td><td>ℵ₀</td></tr>
+      <tr><td>Odd O = {1, 3, 5, …}</td><td>k ↔ 2k − 1</td><td>ℵ₀</td></tr>
+      <tr><td>Counting C = {0, 1, 2, …}</td><td>k ↔ k − 1</td><td>ℵ₀</td></tr>
+      <tr><td>Integers ℤ</td><td>1, 2, 3, 4, 5… ↔ 0, 1, −1, 2, −2…</td><td>ℵ₀</td></tr>
+      <tr><td>Rationals ℚ</td><td>Zig-zag diagonally through the k/m table</td><td>ℵ₀</td></tr>
+    </table></div>
+    <div class="key"><strong>Definition 2.2:</strong> a set is <strong>infinite</strong> if it is equivalent to a proper subset of itself. (E is a proper subset of ℕ, yet E ∼ ℕ.) This can't happen with finite sets.</div>
+    <p><strong>Aleph arithmetic:</strong> ℵ₀ + 1 = ℵ₀ · ℵ₀ + k = ℵ₀ · ℵ₀ + ℵ₀ = ℵ₀ · ℵ₀ × ℵ₀ = ℵ₀</p>
+    <p>A set is <strong>countable</strong> if it is finite or has cardinality ℵ₀. ℵ₀ is the <strong>smallest</strong> infinite cardinality. ℕ, C, ℤ and ℚ are all countably infinite.</p>
+    <h3>2.3 The real numbers are uncountable</h3>
+    <p><strong>Georg Cantor</strong> (1845–1918), founder of set theory, proved that (0, 1) is <strong>uncountable</strong> using the <strong>diagonal argument</strong>, a proof by contradiction:</p>
+    <ol>
+      <li>Suppose every number in (0, 1) could be listed: n₁, n₂, n₃, …</li>
+      <li>Build r = 0.x₁x₂x₃… where each xₖ differs from the k-th digit of nₖ (the diagonal).</li>
+      <li>Then r differs from every nₖ in at least one digit, so r isn't on the list. That contradicts step 1.</li>
+    </ol>
+    <div class="poem">r₁ = 0.<b>1</b>2345
+r₂ = 0.2<b>3</b>456      change the diagonal 1,3,5,7,9
+r₃ = 0.34<b>5</b>67      → r = 0.25784 is not on the list
+r₄ = 0.456<b>7</b>8
+r₅ = 0.5678<b>9</b></div>
+    <ul>
+      <li>Any two intervals have the same number of points. (0, 1) ∼ (−1, 1) using f(x) = 2x − 1.</li>
+      <li>An interval ∼ all of ℝ using tan x and arctan x. So ℝ is uncountable and equivalent to its proper subset (0, 1).</li>
+    </ul>
+    <p class="small">Module check: the module uses tan x on (−π, π), but tan x is a bijection only on (−π/2, π/2). The idea is the same. The module also gives Cantor's birth year as 1854; he was born in 1845.</p>
+    <h3>Hilbert's Infinite Hotel</h3>
+    <p><strong>David Hilbert</strong>'s thought experiment: a fully booked hotel with infinitely many rooms can still take a new guest (everyone moves from room n to n + 1), and even infinitely many new guests (move to room 2n, which frees the odd rooms). It works for any <em>countable</em> crowd, but not for one guest per real number.</p>
+  </section>
+  <p class="small" style="margin-top:28px">Ready? <a href="#quiz">Take the quiz →</a></p>
+</main>
+
+<main id="quiz" hidden>
+  <div class="qbar"><div class="progress"><div id="pbar"></div></div><span class="count" id="count"></span></div>
+  <div class="card" id="qcard"></div>
+</main>
+</div>
+
+<script>
+const Q=[
+["Sets","A set must be:",["Finite","Well-defined","Made of numbers","Non-empty"],1,"You must be able to tell whether any object belongs."],
+["Sets","Which is NOT a set?",["{x | x is a vowel}","{x | x is a positive even number}","{x | x is a large number}","{ }"],2,"“Large” isn't clearly defined."],
+["Sets","Writing V = {a, e, i, o, u} uses the:",["Rule method","Roster (enumeration) method","Venn method","Set-builder method"],1,"The rule method would describe the elements instead."],
+["Sets","n(A) means:",["The name of A","The number of elements of A","The complement of A","The universal set"],1,"It's the cardinality."],
+["Sets","The set with no elements is the:",["Universal set","Empty (null) set","Unit set","Infinite set"],1,"Written { } or ∅."],
+["Operations","A ∪ B contains elements that are:",["In both A and B","In A or B (or both)","In A but not B","In neither"],1,"Union matches “or.”"],
+["Operations","A ∩ B contains elements that are:",["In both A and B","In A or B","In U but not A","In B only"],0,"Intersection matches “and.”"],
+["Operations","U = {1,…,9}, A = {2,4,6,8}, B = {3,6,9}. What is A \\ B?",["{6}","{2, 4, 8}","{3, 9}","{1, 5, 7}"],1,"Elements of A that aren't in B."],
+["Operations","Same sets. What is (A ∪ B)ᶜ?",["{1, 5, 7}","{1, 3, 5, 7, 9}","{6}","{2, 3, 4, 6, 8, 9}"],0,"A ∪ B = {2, 3, 4, 6, 8, 9}; what's left of U is {1, 5, 7}."],
+["Operations","Same sets. What is Aᶜ?",["{1, 3, 5, 7, 9}","{1, 5, 7}","{3, 9}","{2, 4, 6, 8}"],0,"Everything in U that isn't in A."],
+["Operations","If n(A) = 4 and n(B) = 3, then n(A × B) is:",["7","12","1","64"],1,"n(A) · n(B) = 4 · 3."],
+["Operations","Which operation is commutative?",["Set difference","Cartesian product","Union","None of these"],2,"A ∪ B = B ∪ A, but A \\ B ≠ B \\ A and A × B ≠ B × A."],
+["Operations","n(A ∪ B) equals:",["n(A) + n(B)","n(A) + n(B) − n(A ∩ B)","n(A) · n(B)","n(U) − n(A)"],1,"Subtract the overlap, which was counted twice."],
+["Relations","A ⊂ B (proper subset) means:",["A and B are equal","Every element of A is in B, and B has an extra element","A and B have the same size","A and B are disjoint"],1,"⊆ allows equality; ⊂ doesn't."],
+["Relations","A ∼ B (equivalent) means:",["Same elements","Same number of elements","A is inside B","No common elements"],1,"{a, e, i, o, u} ∼ {1, 2, 3, 4, 5}."],
+["Relations","Two sets with no common elements are:",["Equal","Equivalent","Disjoint","Universal"],2,"Like the vowels and the even numbers."],
+["Relations","Which is true?",["Equivalent sets are always equal","Equal sets are always equivalent","Subsets are always equivalent","Disjoint sets are always equal"],1,"Same elements means same count, but not the other way around."],
+["Survey","200 residents: 135 exposed to X, 85 to Y, 40 to both. How many to X only?",["95","135","45","175"],0,"135 − 40."],
+["Survey","Same survey. How many to X or Y?",["220","180","140","200"],1,"135 + 85 − 40."],
+["Survey","Same survey. How many to neither?",["0","20","40","60"],1,"200 − 180."],
+["Infinity","Two sets are in 1-1 correspondence when:",["They are equal","Each element of one pairs with exactly one element of the other","They are both infinite","One is a subset of the other"],1,"This is a bijection."],
+["Infinity","The cardinality of ℕ is written:",["∞","ℵ₀","π","c"],1,"Aleph-null."],
+["Infinity","Which pairing shows E = {2, 4, 6, …} is equivalent to ℕ?",["k ↔ k + 2","k ↔ 2k","k ↔ k²","k ↔ 2k − 1"],1,"2k − 1 is the pairing for the odd numbers."],
+["Infinity","By Definition 2.2, a set is infinite if:",["It has more than a million elements","It is equivalent to a proper subset of itself","It contains 0","It is uncountable"],1,"ℕ ∼ E even though E ⊂ ℕ."],
+["Infinity","ℵ₀ + ℵ₀ equals:",["2ℵ₀, which is bigger","ℵ₀","ℵ₁","Undefined"],1,"ℕ = E ∪ O, and all three have cardinality ℵ₀."],
+["Infinity","Which set is NOT countable?",["The integers ℤ","The rationals ℚ","The real numbers in (0, 1)","The even numbers"],2,"Cantor's diagonal argument."],
+["Infinity","Cantor's diagonal argument is a proof by:",["Induction","Contradiction","Example","Construction of a bijection"],1,"Assume the list is complete, then build a number not on it."],
+["Infinity","How do the intervals (0, 1) and (−1, 1) compare?",["(−1, 1) has twice as many points","They are equivalent","(0, 1) is countable","They are disjoint"],1,"f(x) = 2x − 1 pairs them up one to one."],
+["Infinity","In Hilbert's Hotel, a full hotel fits one new guest by:",["Building a new room","Moving each guest from room n to n + 1","Asking someone to leave","Doubling up guests"],1,"Room 1 becomes free."]
+];
+let order=[],i=0,score=0,answered=false,missed=[];
+const card=document.getElementById('qcard'),pbar=document.getElementById('pbar'),cnt=document.getElementById('count');
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a}
+function start(){Q.forEach(x=>{const ok=x[2][x[3]];x[2]=shuffle(x[2]);x[3]=x[2].indexOf(ok);});order=shuffle(Q.map((_,k)=>k));i=0;score=0;missed=[];render()}
+function render(){
+  answered=false;
+  pbar.style.width=(i/order.length*100)+'%';
+  if(i>=order.length)return finish();
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  card.innerHTML=`<div class="qtopic">${t}</div><div class="qtext">${q}</div><div class="opts">${opts.map((o,k)=>`<button class="opt" id="opt${k}" data-k="${k}"><span class="l">${'ABCD'[k]}</span><span>${o}</span></button>`).join('')}</div><div id="fb"></div>`;
+  card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+}
+function pick(k){
+  if(answered)return;answered=true;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  const btns=card.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  btns[ans].classList.add('right');
+  const ok=k===ans;
+  if(ok)score++;else{btns[k].classList.add('wrong');missed.push([q,opts[ans]])}
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  document.getElementById('fb').innerHTML=`<div class="explain"><b class="${ok?'ok':'no'}">${ok?'Correct.':'Not quite.'}</b> ${why}</div><div class="actions"><button class="btn" id="next">${i+1<order.length?'Next question':'See results'}</button></div>`;
+  const n=document.getElementById('next');n.onclick=()=>{i++;render()};n.focus();
+}
+function finish(){
+  const pct=Math.round(score/order.length*100);
+  cnt.textContent=`Done · ${score}/${order.length}`;
+  const msg=pct>=90?'Excellent. You know this module well.':pct>=75?'Good work. Review the items below.':pct>=50?'Getting there. Go over the sections you missed.':'Revisit the reviewer, then try again.';
+  card.innerHTML=`<div class="qtopic">Results</div><div class="score">${score}<span style="font-size:1.4rem;color:var(--muted)"> / ${order.length}</span></div><p>${pct}% · ${msg}</p>${missed.length?`<h3>Review these</h3><div class="missed">${missed.map(([q,a])=>`<div>${q}<br><em>Answer: ${a}</em></div>`).join('')}</div>`:''}<div class="actions"><button class="btn" id="again">Retake (shuffled)</button><button class="btn ghost" id="back">Back to reviewer</button></div>`;
+  document.getElementById('again').onclick=start;
+  document.getElementById('back').onclick=()=>{location.hash='reviewer';};
+}
+function show(v){
+  const quiz=v==='quiz';
+  document.getElementById('reviewer').hidden=quiz;
+  document.getElementById('quiz').hidden=!quiz;
+  document.getElementById('tab-rev').setAttribute('aria-selected',!quiz);
+  document.getElementById('tab-quiz').setAttribute('aria-selected',quiz);
+  if(quiz&&!order.length)start();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{location.hash=b.dataset.view});
+function route(){const h=location.hash.slice(1);if(h==='quiz')show('quiz');else if(h==='reviewer'||!h)show('reviewer');else{show('reviewer');const el=document.getElementById(h);if(el)el.scrollIntoView();}}
+window.addEventListener('hashchange',route);route();
+
+const parseSet=s=>[...new Set(s.replace(/[{}]/g,'').split(',').map(x=>x.trim()).filter(Boolean))];
+const fmt=a=>a.length?`{${a.join(', ')}}`:'∅';
+function runSets(){
+  const out=document.getElementById('sout');
+  const U=parseSet(document.getElementById('su').value),A=parseSet(document.getElementById('sa').value),B=parseSet(document.getElementById('sb').value);
+  const outside=[...A,...B].filter(x=>!U.includes(x));
+  if(!U.length){out.innerHTML='<p class="err">List the universal set U, separated by commas.</p>';return}
+  if(outside.length){out.innerHTML=`<p class="err">${outside.join(', ')} ${outside.length>1?'are':'is'} not in U. Every element of A and B must also be in U.</p>`;return}
+  const inA=x=>A.includes(x),inB=x=>B.includes(x);
+  const uni=U.filter(x=>inA(x)||inB(x)),int=U.filter(x=>inA(x)&&inB(x)),amb=A.filter(x=>!inB(x)),bma=B.filter(x=>!inA(x)),ac=U.filter(x=>!inA(x)),bc=U.filter(x=>!inB(x)),nei=U.filter(x=>!inA(x)&&!inB(x));
+  const prod=A.length*B.length;
+  const rows=[['A ∪ B','in A or B (or both)',uni,`${A.length} + ${B.length} − ${int.length}`],['A ∩ B','in both A and B',int,''],['A \\ B','in A but not B',amb,`${A.length} − ${int.length}`],['B \\ A','in B but not A',bma,`${B.length} − ${int.length}`],['Aᶜ','in U but not A',ac,`${U.length} − ${A.length}`],['Bᶜ','in U but not B',bc,`${U.length} − ${B.length}`],['(A ∪ B)ᶜ','in neither',nei,`${U.length} − ${uni.length}`]];
+  const sub=A.every(inB)?(A.length<B.length?'A ⊂ B (proper subset)':'A = B'):B.every(inA)?'B ⊂ A (proper subset)':int.length?'A and B overlap':'A and B are disjoint';
+  const pairs=A.length&&B.length&&prod<=40?`<p class="sub">A × B = {${A.flatMap(a=>B.map(b=>`(${a}, ${b})`)).join(', ')}}</p>`:'';
+  out.innerHTML=`<div class="tablebox" style="margin:0"><table><tr><th>Set</th><th>Meaning</th><th>Elements</th><th>n</th></tr>${rows.map(([s,m,v,f])=>`<tr><td><b>${s}</b></td><td>${m}</td><td>${fmt(v)}</td><td>${f?f+' = ':''}${v.length}</td></tr>`).join('')}<tr><td><b>A × B</b></td><td>ordered pairs (a, b)</td><td>${prod} pairs</td><td>${A.length} · ${B.length} = ${prod}</td></tr></table></div>${pairs}<p class="sub">n(U) = ${U.length}, n(A) = ${A.length}, n(B) = ${B.length} · ${sub}${A.length===B.length?' · A ∼ B (equivalent)':''}</p>`;
+}
+function runSurvey(){
+  const out=document.getElementById('vout4');const g=id=>Number(document.getElementById(id).value);
+  const U=g('vu'),X=g('vx'),Y=g('vy'),I=g('vi');const nx=document.getElementById('vnx').value||'X',ny=document.getElementById('vny').value||'Y';
+  if([U,X,Y,I].some(v=>!(v>=0)||!Number.isInteger(v))){out.innerHTML='<p class="err">Enter whole numbers (0 or more) in every box.</p>';return}
+  const xo=X-I,yo=Y-I,un=X+Y-I,ne=U-un;
+  if(I>X||I>Y){out.innerHTML=`<p class="err">“Both” (${I}) can't be bigger than ${I>X?nx:ny} alone. Check the numbers.</p>`;return}
+  if(ne<0){out.innerHTML=`<p class="err">${nx} or ${ny} comes to ${un}, which is more than the ${U} people surveyed. Check the numbers.</p>`;return}
+  out.innerHTML=`<svg viewBox="0 0 360 190" role="img" aria-label="Venn diagram" style="width:100%;max-width:420px;display:block">
+    <rect x="4" y="4" width="352" height="182" rx="10" fill="none" stroke="var(--line)" stroke-width="2"/>
+    <text x="16" y="24" font-family="JetBrains Mono, monospace" font-size="12" fill="var(--muted)">U = ${U}</text>
+    <circle cx="140" cy="100" r="66" fill="var(--indigo)" fill-opacity=".14" stroke="var(--indigo)" stroke-width="2"/>
+    <circle cx="220" cy="100" r="66" fill="var(--madder)" fill-opacity=".14" stroke="var(--madder)" stroke-width="2"/>
+    <g font-family="Bricolage Grotesque, system-ui, sans-serif" font-weight="800" font-size="22" text-anchor="middle" fill="var(--ink)">
+      <text x="110" y="108">${xo}</text><text x="180" y="108">${I}</text><text x="250" y="108">${yo}</text><text x="330" y="172" font-size="18">${ne}</text></g>
+    <g font-family="JetBrains Mono, monospace" font-size="13" text-anchor="middle" fill="var(--muted)"><text x="110" y="28">${nx}</text><text x="250" y="28">${ny}</text></g>
+  </svg>
+  <div class="tablebox" style="margin:0"><table><tr><th>Question</th><th>Set</th><th>Working</th><th>Answer</th></tr>
+  <tr><td>${nx} only</td><td>${nx} \\ ${ny}</td><td>${X} − ${I}</td><td><b>${xo}</b></td></tr>
+  <tr><td>${ny} only</td><td>${ny} \\ ${nx}</td><td>${Y} − ${I}</td><td><b>${yo}</b></td></tr>
+  <tr><td>${nx} or ${ny}</td><td>${nx} ∪ ${ny}</td><td>${X} + ${Y} − ${I}</td><td><b>${un}</b></td></tr>
+  <tr><td>Exactly one</td><td>(${nx} ∪ ${ny}) \\ (${nx} ∩ ${ny})</td><td>${xo} + ${yo}</td><td><b>${xo+yo}</b></td></tr>
+  <tr><td>Neither</td><td>(${nx} ∪ ${ny})ᶜ</td><td>${U} − ${un}</td><td><b>${ne}</b></td></tr></table></div>`;
+}
+['su','sa','sb'].forEach(id=>document.getElementById(id).addEventListener('input',runSets));
+['vu','vx','vy','vi','vnx','vny'].forEach(id=>document.getElementById(id).addEventListener('input',runSurvey));
+runSets();runSurvey();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Numbers and Patterns Reviewer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: single reading column, sticky tab bar (Reviewer / Quiz), woven-band motif as section dividers */
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --ink:#1b1d33; --muted:#5a5e7a; --line:#dcdfec;
+  --indigo:#2c3a8c; --madder:#b8323a; --gold:#c08a12; --tint:#e9ecf8; --ok:#1f7a4d; --bad:#b8323a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,7vw,3.1rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700;color:var(--indigo)}
+h3{font-size:1.12rem;font-weight:700;margin-top:1.4em}
+p{margin:.6em 0}
+a{color:var(--indigo)}
+header{padding-block:28px 12px}
+.eyebrow{font:500 .75rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--madder)}
+.lede{color:var(--muted);max-width:60ch}
+/* woven band */
+.band{height:14px;border-radius:2px;margin:6px 0 0;
+  background:
+   repeating-linear-gradient(90deg,var(--indigo) 0 10px,transparent 10px 20px),
+   repeating-linear-gradient(90deg,transparent 0 5px,var(--madder) 5px 10px,transparent 10px 20px),
+   var(--gold);
+  background-size:20px 7px,20px 7px,auto;background-position:0 0,10px 7px,0 0;background-repeat:repeat-x}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;gap:8px;border-bottom:1px solid var(--line)}
+nav button{flex:1;font:700 1rem var(--display);padding:10px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+nav button[aria-selected="true"]{background:var(--indigo);border-color:var(--indigo);color:var(--bg)}
+button:focus-visible,summary:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
+.toc a{font:500 .8rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted);background:var(--surface)}
+section{padding-block:28px 6px}
+section>.band{margin-bottom:14px;width:64px}
+ul{padding-left:1.2em;margin:.5em 0}
+li{margin:.25em 0}
+.examples{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));margin:12px 0}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.ex b{display:block;font-family:var(--display);font-size:1rem}
+.ex span{color:var(--muted);font-size:.93rem}
+.tag{display:inline-block;font:500 .68rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--madder);margin-bottom:2px}
+.tablebox{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.95rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--tint)}
+tr:last-child td{border-bottom:0}
+.key{background:var(--tint);border-left:4px solid var(--madder);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+.key strong{color:var(--madder)}
+.poem{font-family:var(--mono);font-size:.9rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;white-space:pre;overflow-x:auto;line-height:1.7}
+.poem .n{color:var(--gold)}
+.fib{display:flex;align-items:flex-end;gap:4px;height:70px;margin:10px 0}
+.fib i{display:block;width:18px;background:var(--indigo);border-radius:3px 3px 0 0;font:500 .65rem var(--mono);color:var(--bg);text-align:center;font-style:normal}
+/* quiz */
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;margin:18px 0 8px}
+.progress{flex:1 1 180px;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress div{height:100%;background:var(--madder);width:0;transition:width .3s}
+.count{font:500 .85rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.qtopic{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--madder)}
+.qtext{font:700 1.2rem/1.35 var(--display);margin:8px 0 16px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--indigo)}
+.opt .l{font:700 .85rem var(--mono);color:var(--muted);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--tint);font-size:.95rem}
+.explain b.ok{color:var(--ok)} .explain b.no{color:var(--bad)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{font:700 1rem var(--display);padding:10px 18px;border-radius:999px;border:0;background:var(--indigo);color:var(--bg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--indigo);border:1.5px solid var(--indigo)}
+.score{font:800 3.4rem var(--display);color:var(--indigo);font-variant-numeric:tabular-nums;line-height:1}
+.missed{margin-top:14px;display:grid;gap:8px}
+.missed div{border-left:3px solid var(--bad);padding:6px 12px;background:var(--bg);border-radius:0 8px 8px 0;font-size:.93rem}
+.missed em{color:var(--ok);font-style:normal;font-weight:600}
+.small{font-size:.88rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style><style>
+.calc>*{min-width:0}
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;display:grid;gap:10px}
+.calc label{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:grid;gap:4px}
+.calc textarea{font:500 .95rem/1.6 var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0;resize:vertical}
+.calc textarea:focus{outline:none;border-color:var(--indigo)}
+.wins{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
+.win{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.win b{display:block;font:800 1.5rem var(--display);color:var(--indigo)}
+.flag{font-size:.92rem;padding:8px 12px;border-radius:8px;background:var(--tint)}
+.flag.bad{border-left:3px solid var(--bad)}
+.flag.ok{border-left:3px solid var(--ok)}
+.calc details{border-top:1px solid var(--line);padding-top:8px}
+.calc summary{cursor:pointer;font:700 .95rem var(--display)}
+.calc td{white-space:nowrap}
+.calc input{font:500 1rem var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.calc input:focus{outline:none;border-color:var(--indigo)}
+.calc .row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+.calc .err{color:var(--bad);font-size:.92rem}
+.calc .sub{color:var(--muted);font-size:.88rem}
+.calc .presets{display:flex;flex-wrap:wrap;gap:6px}
+.calc .presets button{font:500 .78rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink);cursor:pointer}
+.calc table{min-width:0}
+.calc td,.calc th{font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--madder);border-radius:99px}
+.tt td,.tt th{text-align:center;font-family:var(--mono);font-size:.85rem}
+.tt th{text-transform:none;letter-spacing:0}
+.tt th.fin{background:var(--indigo);color:var(--bg)}
+.tv{color:var(--ok);font-weight:700}.fv{color:var(--bad)}
+.symbtn{font:700 1.05rem var(--mono)!important;min-width:2.6em}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:1px 5px;border-radius:4px}
+</style>
+<style>
+.affrow{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
+.calc select{font:500 1rem var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%}
+.big{font:700 1.2rem/1.5 var(--mono);word-break:break-word;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;min-height:2.8em;white-space:pre-wrap}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;width:max-content}
+.seg button{font:700 .9rem var(--display);padding:8px 16px;border:0;background:var(--surface);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--indigo);color:var(--bg)}
+.strip{display:grid;grid-template-columns:repeat(26,minmax(0,1fr));gap:2px;font:500 .78rem var(--mono);text-align:center;min-width:520px}
+.strip span{padding:5px 0;border-radius:4px;background:var(--bg)}.strip .p{color:var(--muted)}.strip .c{background:var(--tint);color:var(--indigo);font-weight:700}
+.stripwrap{overflow-x:auto}
+.steps td{font-family:var(--mono);font-size:.88rem}
+.steps{min-width:0!important}
+.krow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.krow input[type=range]{flex:1 1 180px;accent-color:var(--madder)}
+.kval{font:800 1.8rem var(--display);color:var(--madder);font-variant-numeric:tabular-nums}
+#pascal{display:grid;gap:4px;justify-items:center;margin:10px 0;overflow-x:auto}
+.prow{display:flex;gap:4px}
+.prow span{min-width:2.3em;text-align:center;font:500 .85rem var(--mono);padding:5px 2px;border-radius:6px;background:var(--surface);border:1px solid var(--line);cursor:pointer}
+.prow span.on,#pdiag button.on{background:var(--madder);color:var(--bg);border-color:var(--madder)}
+#pdiag button{font:700 .85rem var(--mono);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:3px 8px;cursor:pointer}
+</style>
+<div class="wrap">
+<header>
+  <p style="margin:0 0 8px"><a href="index.html">← All modules</a></p>
+  <div class="eyebrow">MATH 10 · Module 5</div>
+  <h1>Numbers and Patterns</h1>
+  <div class="band" style="width:140px"></div>
+  <p class="lede">A reviewer on numeration systems, the sets of numbers, real number axioms, modular systems, cryptography, Pascal's triangle, Fibonacci numbers and symmetry. Includes a cipher tool, Zₙ tables, a number-system converter and a quiz.</p>
+</header>
+
+<nav role="tablist">
+  <button id="tab-rev" role="tab" aria-selected="true" data-view="reviewer">Reviewer</button>
+  <button id="tab-quiz" role="tab" aria-selected="false" data-view="quiz">Quiz</button>
+</nav>
+
+<main id="reviewer">
+  <div class="toc">
+    <a href="#s-num">1.1 Numeration</a><a href="#s-conv">How to convert</a><a href="#tool-num">Converter</a><a href="#s-sets">1.2 Number sets</a><a href="#s-mod">Modular systems</a><a href="#s-crypto">Cryptography</a><a href="#tool-aff">Cipher tool</a><a href="#s-pat">2 Patterns</a><a href="#s-sym">Symmetry</a>
+  </div>
+
+  <section id="s-num">
+    <div class="band"></div>
+    <h2>1.1 Numeration Systems</h2>
+    <div class="tablebox"><table>
+      <tr><th>System</th><th>Key facts</th><th>Positional?</th></tr>
+      <tr><td><b>Tally marks</b></td><td>Most basic: one mark per item. Simple and easy to add to (inventory, volleyball scores), but clumsy for large numbers.</td><td>No</td></tr>
+      <tr><td><b>Roman</b></td><td>I = 1, V = 5, X = 10, L = 50, C = 100, D = 500, M = 1000. Used in Europe until the 17th century. Still used for monarchs and popes (Elizabeth <b>II</b> is “second,” not eleventh), building years and clock faces.</td><td>No</td></tr>
+      <tr><td><b>Egyptian</b></td><td>~3000 BC. <b>Hieroglyphs</b>, one per power of 10: coiled rope = 100, bent finger = 10,000. <b>Additive</b>, not place-value.</td><td>No</td></tr>
+      <tr><td><b>Babylonian</b></td><td><b>Base 60 (sexagesimal)</b>. Only two symbols, a “unit” and a “ten,” repeated to make the 59 digits.</td><td>Yes</td></tr>
+      <tr><td><b>Chinese</b></td><td><b>Bamboo rods</b> for 1 to 9, placed in units, tens, hundreds… columns. Close to our decimal system.</td><td>Yes</td></tr>
+      <tr><td><b>Hindu-Arabic</b></td><td>From Hindu mathematicians (6th–7th century), adopted by the Arabs around 800 A.D. Digits 0 to 9; each place is a power of 10.</td><td>Yes</td></tr>
+    </table></div>
+    <p><strong>Decimal expansion:</strong> 352.7 = 3·10² + 5·10¹ + 2·10⁰ + 7·10⁻¹. Moving one place left multiplies the place value by 10; moving right divides it by 10.</p>
+    <p>Other positional systems work the same way: <strong>binary</strong> (0, 1), <strong>octal</strong> (0 to 7), <strong>hexadecimal</strong> (0 to 9, then A to F for 10 to 15).</p>
+    <p class="small">Module check: the module says octal uses “0 to 8.” Base 8 uses the eight digits <b>0 to 7</b>; just as base 10 has no single digit for 10, base 8 has none for 8.</p>
+
+    <h3 id="s-conv">How to convert between bases</h3>
+    <p>Every base works the same way. The only differences are how many digits there are and what each place is worth.</p>
+    <div class="tablebox"><table>
+      <tr><th>Base</th><th>Digits</th><th>Place values (right to left)</th></tr>
+      <tr><td><b>Binary</b> (2)</td><td>0, 1</td><td>1, 2, 4, 8, 16, 32, 64, 128, …</td></tr>
+      <tr><td><b>Octal</b> (8)</td><td>0 to 7</td><td>1, 8, 64, 512, 4096, …</td></tr>
+      <tr><td><b>Decimal</b> (10)</td><td>0 to 9</td><td>1, 10, 100, 1000, …</td></tr>
+      <tr><td><b>Hexadecimal</b> (16)</td><td>0 to 9, A to F</td><td>1, 16, 256, 4096, …</td></tr>
+    </table></div>
+    <div class="tablebox"><table class="tt">
+      <tr><th>Hex</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th></tr>
+      <tr><th>Dec</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr>
+      <tr><th>Bin</th><td>0000</td><td>0001</td><td>0010</td><td>0011</td><td>0100</td><td>0101</td><td>0110</td><td>0111</td><td>1000</td><td>1001</td><td>1010</td><td>1011</td><td>1100</td><td>1101</td><td>1110</td><td>1111</td></tr>
+    </table></div>
+    <p class="small">The first eight columns (0 to 7) are also the octal digits. Octal uses only the last 3 bits: 0 = 000 up to 7 = 111.</p>
+
+    <div class="examples">
+      <div class="ex"><span class="tag">Method 1 · any base → decimal</span><b>Multiply by place values, then add</b><span>Write each digit times its place value and add them up (the expanded form).</span></div>
+      <div class="ex"><span class="tag">Method 2 · decimal → any base</span><b>Divide repeatedly, read remainders upward</b><span>Divide by the new base, write down the remainder, and divide the quotient again until it reaches 0. The answer is the remainders read from the <strong>bottom up</strong>.</span></div>
+      <div class="ex"><span class="tag">Method 3 · binary ↔ octal / hex</span><b>Group the bits</b><span>From the right, group binary digits in <strong>3s for octal</strong> or <strong>4s for hex</strong>. Pad the left with zeros. Convert each group to one digit.</span></div>
+      <div class="ex"><span class="tag">Method 4 · octal ↔ hex</span><b>Go through binary</b><span>Expand each octal digit to 3 bits, regroup into 4s, and read off the hex. (Going through decimal also works.)</span></div>
+    </div>
+
+    <h3>Method 1 examples: to decimal</h3>
+    <div class="poem">Binary   101101₂ = 1·32 + 0·16 + 1·8 + 1·4 + 0·2 + 1·1 = 32 + 8 + 4 + 1 = 45
+Octal       157₈ = 1·64 + 5·8 + 7·1                  = 64 + 40 + 7  = 111
+Hex         2F₁₆ = 2·16 + F·1  = 2·16 + 15·1          = 32 + 15      = 47
+Hex        1A3₁₆ = 1·256 + 10·16 + 3·1                = 256 + 160 + 3 = 419</div>
+
+    <h3>Method 2 example: 156 to binary, octal and hex</h3>
+    <div class="row" style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))">
+      <div class="tablebox" style="margin:0"><table class="steps"><tr><th>÷ 2</th><th>quotient</th><th>rem.</th></tr>
+        <tr><td>156</td><td>78</td><td>0</td></tr><tr><td>78</td><td>39</td><td>0</td></tr><tr><td>39</td><td>19</td><td>1</td></tr><tr><td>19</td><td>9</td><td>1</td></tr><tr><td>9</td><td>4</td><td>1</td></tr><tr><td>4</td><td>2</td><td>0</td></tr><tr><td>2</td><td>1</td><td>0</td></tr><tr><td>1</td><td>0</td><td>1 ↑</td></tr></table><p class="sub" style="padding:0 12px">Read up: <b>10011100₂</b></p></div>
+      <div class="tablebox" style="margin:0"><table class="steps"><tr><th>÷ 8</th><th>quotient</th><th>rem.</th></tr>
+        <tr><td>156</td><td>19</td><td>4</td></tr><tr><td>19</td><td>2</td><td>3</td></tr><tr><td>2</td><td>0</td><td>2 ↑</td></tr></table><p class="sub" style="padding:0 12px">Read up: <b>234₈</b></p></div>
+      <div class="tablebox" style="margin:0"><table class="steps"><tr><th>÷ 16</th><th>quotient</th><th>rem.</th></tr>
+        <tr><td>156</td><td>9</td><td>12 = C</td></tr><tr><td>9</td><td>0</td><td>9 ↑</td></tr></table><p class="sub" style="padding:0 12px">Read up: <b>9C₁₆</b></p></div>
+    </div>
+    <p class="small">Check by expanding back: 2·64 + 3·8 + 4 = 156 ✓ and 9·16 + 12 = 156 ✓. For hex, a remainder from 10 to 15 becomes a letter A to F.</p>
+
+    <h3>Method 3 and 4 examples: grouping</h3>
+    <div class="poem">Binary → octal (3s):   10011100  →  010 | 011 | 100  →  2 3 4   = 234₈
+Binary → hex (4s):     10011100  →  1001 | 1100     →  9 C     = 9C₁₆
+Hex → binary:          9C   →  9 = 1001,  C = 1100   →  10011100₂
+Octal → hex:           234₈ →  010 011 100  →  1001 1100  →  9C₁₆
+Hex → octal:           2F₁₆ →  0010 1111   →  000 101 111  →  57₈   (check: 5·8 + 7 = 47 ✓)</div>
+    <div class="key"><strong>Quick memory tips:</strong> 8 = 2³, so one octal digit = 3 bits. 16 = 2⁴, so one hex digit = 4 bits. Always group <b>from the right</b>. When dividing, read the remainders <b>from the bottom up</b>.</div>
+
+    <div class="calc" id="tool-num">
+      <h3 style="margin:0">Number-system converter</h3>
+      <div class="sub">Type a number in any base. It converts to all the others and shows the working for each method.</div>
+      <div class="affrow">
+        <label for="numIn">Number<input id="numIn" value="2026" spellcheck="false" autocomplete="off"></label>
+        <label for="numBase">Written in<select id="numBase"><option value="10">Decimal (base 10)</option><option value="2">Binary (base 2)</option><option value="8">Octal (base 8)</option><option value="16">Hexadecimal (base 16)</option><option value="0">Roman numerals</option></select></label>
+      </div>
+      <div id="numOut"></div>
+    </div>
+  </section>
+
+  <section id="s-sets">
+    <div class="band"></div>
+    <h2>1.2 The Sets of Numbers</h2>
+    <div class="tablebox"><table>
+      <tr><th>Set</th><th>Symbol</th><th>What's in it</th></tr>
+      <tr><td><b>Natural / counting</b></td><td>ℕ</td><td>1, 2, 3, … (also called the positive integers ℤ⁺)</td></tr>
+      <tr><td><b>Whole</b></td><td>W</td><td>ℕ together with 0</td></tr>
+      <tr><td><b>Integers</b></td><td>ℤ</td><td>ℤ⁺, 0 and ℤ⁻ (negatives). 0 is neither positive nor negative.</td></tr>
+      <tr><td><b>Rational</b></td><td>ℚ</td><td>a/b with a, b integers and b ≠ 0. Decimals that <b>terminate</b> or <b>repeat</b>. Every integer is rational.</td></tr>
+      <tr><td><b>Irrational</b></td><td>ℚ′</td><td>Non-terminating, <b>non-repeating</b> decimals: π, e, √2</td></tr>
+      <tr><td><b>Real</b></td><td>ℝ</td><td>ℚ ∪ ℚ′</td></tr>
+      <tr><td><b>Imaginary</b></td><td></td><td>Real multiples of i, where i = √−1</td></tr>
+      <tr><td><b>Complex</b></td><td></td><td>z = a + bi, with a, b real</td></tr>
+    </table></div>
+    <p><strong>Prime:</strong> a natural number whose only factors are 1 and itself (2, 3, 5, 7, 11…). <strong>Composite:</strong> has other factors too (4, 6, 8, 9…). <strong>1 is neither.</strong></p>
+    <h3>Axioms of the real number system (+ and ·)</h3>
+    <div class="tablebox"><table>
+      <tr><th>#</th><th>Axiom</th><th>In symbols</th></tr>
+      <tr><td>1</td><td><b>Closure</b></td><td>a + b and ab are real</td></tr>
+      <tr><td>2</td><td><b>Commutativity</b></td><td>a + b = b + a, ab = ba</td></tr>
+      <tr><td>3</td><td><b>Associativity</b></td><td>(a + b) + c = a + (b + c), (ab)c = a(bc)</td></tr>
+      <tr><td>4</td><td><b>Distributivity</b></td><td>a(b + c) = ab + ac</td></tr>
+      <tr><td>5</td><td><b>Identities</b></td><td>a + 0 = a, a · 1 = a</td></tr>
+      <tr><td>6</td><td><b>Inverses</b></td><td>a + (−a) = 0; a · a⁻¹ = 1 for a ≠ 0</td></tr>
+    </table></div>
+  </section>
+
+  <section id="s-mod">
+    <div class="band"></div>
+    <h2>Modular Systems</h2>
+    <p><strong>Zₙ = {0, 1, 2, …, n − 1}.</strong> Modular addition a +ₙ b is the <strong>remainder</strong> of a + b divided by n. Modular multiplication works the same way with the product.</p>
+    <div class="poem">In Z₅:   3 +₅ 4 = 7 → remainder 2      3 ·₅ 4 = 12 → remainder 2
+In Z₁₂:  9 +₁₂ 5 = 14 → 2   (like a clock: 9 o'clock + 5 hours = 2 o'clock)</div>
+    <div class="key">Zₙ satisfies <strong>all</strong> the real number axioms <strong>except the last</strong>: every element has an additive inverse, but <strong>not every non-zero element has a multiplicative inverse</strong>. In Z₆, nothing times 2 gives 1. An element has an inverse only when it shares no factor with n except 1.</div>
+    <p class="small">The 4-step lamp/tile table in Module 3 is exactly +₄ in Z₄.</p>
+    <div class="calc" id="tool-z">
+      <h3 style="margin:0">Zₙ tables</h3>
+      <div class="krow"><label for="zn" style="flex:1 1 200px">n<input type="range" id="zn" min="2" max="12" value="6"></label><span class="kval" id="znv">6</span></div>
+      <div id="zout"></div>
+    </div>
+  </section>
+
+  <section id="s-crypto">
+    <div class="band"></div>
+    <h2>Cryptography</h2>
+    <p><strong>Cryptography</strong> is the study of encoding and decoding messages. The module uses <strong>Z₂₆</strong>, which has one element per letter, numbered this way:</p>
+    <div class="stripwrap"><div class="strip" id="affKey"></div></div>
+    <p class="small">A = 1, B = 2, …, Y = 25, and <b>Z = 0</b>. Other numberings are possible, and a secret numbering adds security.</p>
+    <p>The key is an equation <strong>y = ax + b</strong> (mod 26), where <strong>a must have a multiplicative inverse</strong> in Z₂₆. Only <strong>1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25</strong> work: the odd numbers except 13.</p>
+    <div class="examples">
+      <div class="ex"><span class="tag">Encrypt</span><b>y = ax + b</b><span>1. Letter → number x. 2. Compute ax + b, then take mod 26. 3. Number y → letter.</span></div>
+      <div class="ex"><span class="tag">Decrypt</span><b>x = a⁻¹(y + (−b))</b><span>1. Letter → number y. 2. Subtract b, multiply by a⁻¹, then take mod 26. 3. Number x → letter.</span></div>
+    </div>
+    <h3>Worked example: y = 3x + 5, encrypt HI</h3>
+    <div class="tablebox"><table class="steps">
+      <tr><th>Letter</th><th>x</th><th>3x + 5</th><th>mod 26</th><th>Cipher</th></tr>
+      <tr><td>H</td><td>8</td><td>29</td><td>3</td><td><b>C</b></td></tr>
+      <tr><td>I</td><td>9</td><td>32</td><td>6</td><td><b>F</b></td></tr>
+    </table></div>
+    <p><strong>Decrypt CF:</strong> a = 3, and its inverse is 9 (3 × 9 = 27 ≡ 1). For C: 9(3 − 5) = −18 ≡ 8 → H ✓. For F: 9(6 − 5) = 9 → I ✓.</p>
+    <div class="key">When <strong>a = 1</strong>, the equation is y = x + b, which is a <strong>Caesar cipher</strong> with shift b. Caesar's own cipher is y = x + 3. The Caesar Cipher Lab covers it in depth, including how to crack it.</div>
+
+    <div class="calc" id="tool-aff">
+      <h3 style="margin:0">Module 5 cipher tool (y = ax + b)</h3>
+      <div class="sub">Uses the module's numbering (A = 1 … Y = 25, Z = 0). Set a = 1 for a Caesar cipher.</div>
+      <div class="seg" role="group" aria-label="Mode"><button id="affEnc" aria-pressed="true">Encrypt</button><button id="affDecB" aria-pressed="false">Decrypt</button></div>
+      <div class="affrow">
+        <label for="affA">a (must have an inverse)<select id="affA"></select></label>
+        <label for="affB">b (shift)<input id="affB" inputmode="numeric" value="8"></label>
+      </div>
+      <p id="affEq" style="font-family:var(--mono);margin:0"></p>
+      <label for="affIn">Message<textarea id="affIn" rows="2" spellcheck="false">Math is fun</textarea></label>
+      <div class="big" id="affOut" aria-live="polite"></div>
+      <div class="actions" style="margin-top:0"><button class="btn ghost" id="affSwap">Use result as input</button></div>
+      <details><summary>Show the math for each letter</summary><div id="affSteps"></div></details>
+    </div>
+  </section>
+
+  <section id="s-pat">
+    <div class="band"></div>
+    <h2>2. Mathematics as the Science of Patterns</h2>
+    <p>Spotting the rule in a number sequence lets you predict what comes next, the same way scientists make predictions.</p>
+    <h3>Pascal's triangle</h3>
+    <p>Each entry is the sum of the two above it. Patterns inside it include the counting numbers, triangular numbers, binomial coefficients, row sums that are powers of 2, and left-right symmetry. Adding the <strong>shallow diagonals</strong> gives the <strong>Fibonacci numbers</strong>. Tap a sum below to light up its diagonal.</p>
+    <div id="pascal"></div>
+    <p id="pdiag" class="small"></p>
+    <h3>2.2 Fibonacci numbers and the golden ratio</h3>
+    <ul>
+      <li><strong>Fibonacci:</strong> 1, 1, 2, 3, 5, 8, 13, 21, 34, … Each term is the sum of the two before it.</li>
+      <li>Ratios of consecutive terms approach the <strong>golden ratio</strong> ≈ 1.618: 8/5 = 1.6, 13/8 = 1.625, 21/13 ≈ 1.615, 34/21 ≈ 1.619.</li>
+      <li>Both show up in nature (leaves, flowers, fruits, shells), art and architecture.</li>
+    </ul>
+  </section>
+
+  <section id="s-sym">
+    <div class="band"></div>
+    <h2>2.3 Symmetry and Frieze Patterns</h2>
+    <div class="tablebox"><table>
+      <tr><th>Type</th><th>Meaning</th><th>Examples</th></tr>
+      <tr><td><b>Reflectional</b></td><td>Points are equally placed about a line, the <b>axis of symmetry</b>, which acts as a mirror.</td><td>Butterfly. Starfish: <b>5</b> axes. Snowflake: <b>6</b> axes.</td></tr>
+      <tr><td><b>Rotational (radial)</b></td><td>Looks the same after turning around a center point.</td><td>Starfish, flowers</td></tr>
+      <tr><td><b>Translational</b></td><td>The whole figure is made by sliding one part along an axis.</td><td>Leaves along a branch, honeycomb</td></tr>
+    </table></div>
+    <div class="poem">Angle of rotation θ = the smallest turn that leaves the figure unchanged
+Order of rotation  = 360° / θ
+  order 7  →  θ = 360°/7 ≈ 51.4°        θ = 72°  →  order 5</div>
+    <p>A <strong>frieze pattern</strong> is a strip with a repeating symmetric design. For one-color designs there are exactly <strong>seven</strong> possible frieze patterns, each a combination of reflection, rotation and translation.</p>
+  </section>
+  <p class="small" style="margin-top:28px">Ready? <a href="#quiz">Take the quiz →</a></p>
+</main>
+
+<main id="quiz" hidden>
+  <div class="qbar"><div class="progress"><div id="pbar"></div></div><span class="count" id="count"></span></div>
+  <div class="card" id="qcard"></div>
+</main>
+</div>
+
+<script>
+const Q=[
+["Numeration","Which numeration system is the most basic, using one mark per item?",["Roman","Tally marks","Egyptian","Babylonian"],1,"Simple to add to, but hard to use for large numbers."],
+["Numeration","In Roman numerals, D stands for:",["50","100","500","1000"],2,"I 1, V 5, X 10, L 50, C 100, D 500, M 1000."],
+["Numeration","Queen Elizabeth II is read as:",["Elizabeth the Eleventh","Elizabeth the Second","Elizabeth Two-One","Elizabeth the Twelfth"],1,"II is Roman for 2."],
+["Numeration","In the Egyptian system, a coiled rope stands for:",["10","100","1,000","10,000"],1,"A bent finger stands for 10,000."],
+["Numeration","The Egyptian numeration system is:",["Positional","Additive","Base 60","Binary"],1,"You add up the symbol values; position doesn't matter."],
+["Numeration","The Babylonian system is base:",["10","12","20","60"],3,"It's called sexagesimal."],
+["Numeration","The Chinese system represented 1 to 9 using:",["Knots","Bamboo rods","Clay tokens","Hieroglyphs"],1,"The rods were placed in units, tens, hundreds… columns."],
+["Numeration","Hindu-Arabic numerals were adopted by the Arabs around:",["300 BC","800 A.D.","1500 A.D.","1700 A.D."],1,"They came from Hindu mathematicians in the 6th–7th century."],
+["Conversion","Convert 101101₂ to decimal.",["45","41","37","90"],0,"32 + 8 + 4 + 1 = 45."],
+["Conversion","Convert 13 to binary.",["1011","1101","1110","1001"],1,"8 + 4 + 1 = 13. Division: 13→6 r1, 6→3 r0, 3→1 r1, 1→0 r1, then read up: 1101."],
+["Conversion","Convert 157₈ to decimal.",["111","157","103","127"],0,"1·64 + 5·8 + 7 = 111."],
+["Conversion","Convert 156 to octal.",["234","342","198","9C"],0,"156÷8 = 19 r4, 19÷8 = 2 r3, 2÷8 = 0 r2. Read up: 234."],
+["Conversion","Convert 2F₁₆ to decimal.",["47","32","215","35"],0,"2·16 + 15 = 47."],
+["Conversion","Convert 255 to hexadecimal.",["EE","FF","F0","1FF"],1,"255 ÷ 16 = 15 r15, so F then F."],
+["Conversion","Convert 1A3₁₆ to decimal.",["163","419","413","263"],1,"1·256 + 10·16 + 3 = 419."],
+["Conversion","To convert binary to hexadecimal, group the bits in:",["2s","3s","4s","8s"],2,"16 = 2⁴. Groups of 3 are for octal (8 = 2³)."],
+["Conversion","Convert 10011100₂ to hexadecimal.",["9C","234","C9","156"],0,"1001 | 1100 → 9 | C."],
+["Conversion","Convert 64 to octal.",["80","100","64","40"],1,"64 = 1·8², so it's written 100₈."],
+["Conversion","When converting decimal to another base by repeated division, you read the remainders:",["Top to bottom","Bottom to top","Largest first","Only the last one"],1,"The last remainder is the leftmost digit."],
+["Number sets","The set ℕ together with 0 is the set of:",["Integers","Whole numbers","Rational numbers","Real numbers"],1,"W = {0, 1, 2, 3, …}"],
+["Number sets","Which number is irrational?",["0.75","0.333…","√2","22/7"],2,"Its decimal never ends or repeats."],
+["Number sets","Which statement is true?",["0 is positive","1 is prime","1 is neither prime nor composite","Every integer is irrational"],2,"A prime needs exactly two factors."],
+["Number sets","A complex number has the form:",["a/b","a + bi","√a","a · 10ⁿ"],1,"a and b are real, and i = √−1."],
+["Axioms","a(b + c) = ab + ac is the:",["Commutative property","Associative property","Distributive property","Closure property"],2,"Multiplication distributes over addition."],
+["Axioms","The identity for multiplication in ℝ is:",["0","1","−1","a⁻¹"],1,"a · 1 = a."],
+["Modular","In Z₅, what is 3 + 4?",["7","2","1","0"],1,"7 ÷ 5 leaves remainder 2."],
+["Modular","In Z₅, what is 3 · 4?",["12","2","1","4"],1,"12 ÷ 5 leaves remainder 2."],
+["Modular","Which real-number axiom can fail in Zₙ?",["Closure","Commutativity","Additive inverses","Multiplicative inverses"],3,"In Z₆, 2 has no multiplicative inverse."],
+["Modular","On a 12-hour clock, 9 o'clock + 5 hours is:",["14 o'clock","2 o'clock","4 o'clock","5 o'clock"],1,"14 mod 12 = 2."],
+["Crypto","In the module's numbering, which letter is 0?",["A","M","Y","Z"],3,"A = 1 to Y = 25, and Z = 0."],
+["Crypto","In y = ax + b (mod 26), why can't a = 13?",["13 is prime","13 has no multiplicative inverse in Z₂₆","13 is too big","13 is odd"],1,"13 shares the factor 13 with 26, so no number times 13 gives 1 mod 26."],
+["Crypto","The multiplicative inverse of 3 in Z₂₆ is:",["9","13","23","3"],0,"3 × 9 = 27 ≡ 1 (mod 26)."],
+["Crypto","Using y = 3x + 5 (A = 1), the letter H encrypts to:",["C","K","N","Z"],0,"H = 8: 3·8 + 5 = 29 ≡ 3 → C."],
+["Crypto","With a = 1, the cipher y = x + b is a:",["Caesar (shift) cipher","Binary code","Frieze pattern","Roman cipher"],0,"Caesar used y = x + 3."],
+["Crypto","To decrypt y = ax + b, use:",["x = a(y + b)","x = a⁻¹(y − b)","x = y − a","x = b − ay"],1,"Undo the + b first, then undo the × a."],
+["Patterns","Adding the shallow diagonals of Pascal's triangle gives the:",["Prime numbers","Fibonacci numbers","Square numbers","Powers of 10"],1,"1, 1, 2, 3, 5, 8, 13…"],
+["Patterns","Ratios of consecutive Fibonacci numbers approach about:",["1.414","1.618","3.14","2.718"],1,"The golden ratio."],
+["Symmetry","How many axes of symmetry does a snowflake have?",["4","5","6","8"],2,"Three go through opposite tips and three run between them."],
+["Symmetry","A figure has an angle of rotation of 72°. Its order of rotation is:",["4","5","6","72"],1,"360 ÷ 72 = 5."],
+["Symmetry","Leaves repeating along a branch show:",["Reflectional symmetry","Rotational symmetry","Translational symmetry","No symmetry"],2,"One part is slid along an axis to make the whole."],
+["Symmetry","How many frieze patterns are possible for a one-color design?",["4","5","7","17"],2,"Each combines reflection, rotation and translation."]
+];
+let order=[],i=0,score=0,answered=false,missed=[];
+const card=document.getElementById('qcard'),pbar=document.getElementById('pbar'),cnt=document.getElementById('count');
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a}
+function start(){Q.forEach(x=>{const ok=x[2][x[3]];x[2]=shuffle(x[2]);x[3]=x[2].indexOf(ok);});order=shuffle(Q.map((_,k)=>k));i=0;score=0;missed=[];render()}
+function render(){
+  answered=false;
+  pbar.style.width=(i/order.length*100)+'%';
+  if(i>=order.length)return finish();
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  card.innerHTML=`<div class="qtopic">${t}</div><div class="qtext">${q}</div><div class="opts">${opts.map((o,k)=>`<button class="opt" id="opt${k}" data-k="${k}"><span class="l">${'ABCD'[k]}</span><span>${o}</span></button>`).join('')}</div><div id="fb"></div>`;
+  card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+}
+function pick(k){
+  if(answered)return;answered=true;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  const btns=card.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  btns[ans].classList.add('right');
+  const ok=k===ans;
+  if(ok)score++;else{btns[k].classList.add('wrong');missed.push([q,opts[ans]])}
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  document.getElementById('fb').innerHTML=`<div class="explain"><b class="${ok?'ok':'no'}">${ok?'Correct.':'Not quite.'}</b> ${why}</div><div class="actions"><button class="btn" id="next">${i+1<order.length?'Next question':'See results'}</button></div>`;
+  const n=document.getElementById('next');n.onclick=()=>{i++;render()};n.focus();
+}
+function finish(){
+  const pct=Math.round(score/order.length*100);
+  cnt.textContent=`Done · ${score}/${order.length}`;
+  const msg=pct>=90?'Excellent. You know this module well.':pct>=75?'Good work. Review the items below.':pct>=50?'Getting there. Go over the sections you missed.':'Revisit the reviewer, then try again.';
+  card.innerHTML=`<div class="qtopic">Results</div><div class="score">${score}<span style="font-size:1.4rem;color:var(--muted)"> / ${order.length}</span></div><p>${pct}% · ${msg}</p>${missed.length?`<h3>Review these</h3><div class="missed">${missed.map(([q,a])=>`<div>${q}<br><em>Answer: ${a}</em></div>`).join('')}</div>`:''}<div class="actions"><button class="btn" id="again">Retake (shuffled)</button><button class="btn ghost" id="back">Back to reviewer</button></div>`;
+  document.getElementById('again').onclick=start;
+  document.getElementById('back').onclick=()=>{location.hash='reviewer';};
+}
+function show(v){
+  const quiz=v==='quiz';
+  document.getElementById('reviewer').hidden=quiz;
+  document.getElementById('quiz').hidden=!quiz;
+  document.getElementById('tab-rev').setAttribute('aria-selected',!quiz);
+  document.getElementById('tab-quiz').setAttribute('aria-selected',quiz);
+  if(quiz&&!order.length)start();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{location.hash=b.dataset.view});
+function route(){const h=location.hash.slice(1);if(h==='quiz')show('quiz');else if(h==='reviewer'||!h)show('reviewer');else{show('reviewer');const el=document.getElementById(h);if(el)el.scrollIntoView();}}
+window.addEventListener('hashchange',route);route();
+const AL5='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const md=(n,m)=>((n%m)+m)%m;
+const L2N=c=>(AL5.indexOf(c.toUpperCase())+1)%26;      // A=1 … Y=25, Z=0 (Module 5)
+const N2L=n=>AL5[md(n-1,26)];
+const gcd5=(a,b)=>b?gcd5(b,a%b):Math.abs(a);
+const inv=(a,n)=>{for(let x=1;x<n;x++)if(md(a*x,n)===1)return x;return null};
+function affine(s,a,b,dec){const ai=inv(a,26);return s.replace(/[a-z]/gi,ch=>{const x=L2N(ch);const y=dec?md(ai*(x-b),26):md(a*x+b,26);const out=N2L(y);return ch===ch.toLowerCase()?out.toLowerCase():out})}
+function toRoman(n){if(!(n>=1&&n<=3999))return null;const v=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];let r='';for(const [x,s] of v)while(n>=x){r+=s;n-=x}return r}
+function fromRoman(s){const m={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};s=s.toUpperCase();if(!/^[IVXLCDM]+$/.test(s))return null;let t=0;for(let i=0;i<s.length;i++){const a=m[s[i]],b=m[s[i+1]]||0;t+=a<b?-a:a}return toRoman(t)===s?t:null}
+if(typeof module!=='undefined')module.exports={affine,inv,toRoman,fromRoman,L2N,N2L};
+const VALID_A=[1,3,5,7,9,11,15,17,19,21,23,25];
+let aDec=false;
+function runAff(){
+  const a=+document.getElementById('affA').value,b=md(+document.getElementById('affB').value||0,26);const ai=inv(a,26);
+  const s=document.getElementById('affIn').value;const out=affine(s,a,b,aDec);
+  document.getElementById('affOut').textContent=out||' ';
+  document.getElementById('affEq').innerHTML=aDec?`x = a⁻¹(y − b) = ${ai}(y − ${b}) mod 26 &nbsp;<span class="sub">since ${a} × ${ai} = ${a*ai} ≡ 1 (mod 26)</span>`:`y = ${a===1?'':a}x + ${b} mod 26${a===1?' <span class="sub">(a = 1 makes it a Caesar shift by '+b+')</span>':''}`;
+  const letters=[...s].filter(c=>/[a-z]/i.test(c)).slice(0,10);
+  document.getElementById('affSteps').innerHTML=letters.length?`<div class="tablebox"><table class="steps"><tr><th>Letter</th><th>${aDec?'y':'x'}</th><th>${aDec?`${ai}(y − ${b})`:`${a}x + ${b}`}</th><th>mod 26</th><th>Result</th></tr>${letters.map(c=>{const v=L2N(c);const raw=aDec?ai*(v-b):a*v+b;const r=md(raw,26);return `<tr><td>${c.toUpperCase()}</td><td>${v}</td><td>${raw}</td><td>${r}</td><td><b>${N2L(r)}</b></td></tr>`}).join('')}</table></div>`:'<p class="sub">Type some letters to see the working.</p>';
+}
+document.getElementById('affA').innerHTML=VALID_A.map(a=>`<option value="${a}"${a===5?' selected':''}>${a}  (inverse ${inv(a,26)})</option>`).join('');
+const affMode=d=>{aDec=d;document.getElementById('affEnc').setAttribute('aria-pressed',!d);document.getElementById('affDecB').setAttribute('aria-pressed',d);runAff()};
+document.getElementById('affEnc').onclick=()=>affMode(false);document.getElementById('affDecB').onclick=()=>affMode(true);
+['affA','affB','affIn'].forEach(id=>document.getElementById(id).addEventListener('input',runAff));
+document.getElementById('affSwap').onclick=()=>{document.getElementById('affIn').value=document.getElementById('affOut').textContent.trim();affMode(!aDec)};
+document.getElementById('affKey').innerHTML=AL5.split('').map(c=>`<span class="p">${c}</span>`).join('')+AL5.split('').map(c=>`<span class="c">${L2N(c)}</span>`).join('');
+runAff();
+function runZ(){
+  const n=+document.getElementById('zn').value;document.getElementById('znv').textContent=n;
+  const r=[...Array(n).keys()];
+  const tbl=(op,sym)=>`<div class="tablebox" style="margin:0"><table class="tt"><tr><th class="fin">${sym}</th>${r.map(x=>`<th>${x}</th>`).join('')}</tr>${r.map(a=>`<tr><th>${a}</th>${r.map(b=>{const v=op(a,b);return `<td class="${sym==='·'&&v===1?'tv':''}">${v}</td>`}).join('')}</tr>`).join('')}</table></div>`;
+  const invs=r.slice(1).map(a=>{const i=inv(a,n);return i?`<b>${a}</b>⁻¹ = ${i}`:`<span style="color:var(--bad)">${a}: none</span>`});
+  document.getElementById('zout').innerHTML=`<div class="row"><div><div class="sub">Addition +<sub>${n}</sub></div>${tbl((a,b)=>(a+b)%n,'+')}</div><div><div class="sub">Multiplication ·<sub>${n}</sub> (green = 1)</div>${tbl((a,b)=>(a*b)%n,'·')}</div></div><p class="sub">Multiplicative inverses in Z<sub>${n}</sub>: ${invs.join(' · ')}</p><p class="sub">${invs.every(x=>!x.includes('none'))?`Every non-zero element has an inverse, because ${n} is prime.`:`Some elements have no inverse. An element has one only if it shares no factor with ${n} besides 1.`}</p>`;
+}
+document.getElementById('zn').addEventListener('input',runZ);runZ();
+function runNum(){
+  const raw=document.getElementById('numIn').value.trim();const base=+document.getElementById('numBase').value;const out=document.getElementById('numOut');
+  let n;
+  if(base===0){n=fromRoman(raw);if(n===null){out.innerHTML='<p class="err">That isn\'t a valid Roman numeral (use I, V, X, L, C, D, M, like MCMXCIV).</p>';return}}
+  else{const ok={2:/^[01]+$/,8:/^[0-7]+$/,10:/^\d+$/,16:/^[0-9a-f]+$/i}[base];if(!ok.test(raw)){out.innerHTML=`<p class="err">Base ${base} only uses ${({2:'0 and 1',8:'0 to 7',10:'0 to 9',16:'0 to 9 and A to F'})[base]}.</p>`;return}n=parseInt(raw,base)}
+  if(n>1e12){out.innerHTML='<p class="err">Try a smaller number (up to a trillion).</p>';return}
+  const exp=(b)=>{const d=n.toString(b).toUpperCase();return d.split('').map((c,i)=>`${c}·${b}<sup>${d.length-1-i}</sup>`).join(' + ')};
+  const sx=[];let t=n;do{sx.unshift(t%60);t=Math.floor(t/60)}while(t>0);
+  const rows=[['Decimal (base 10)',n.toLocaleString('en-US'),exp(10)],['Binary (base 2)',n.toString(2),n<4096?exp(2):''],['Octal (base 8)',n.toString(8),exp(8)],['Hexadecimal (base 16)',n.toString(16).toUpperCase(),exp(16)],['Babylonian (base 60)',sx.join(' ; '),sx.map((d,i)=>`${d}·60<sup>${sx.length-1-i}</sup>`).join(' + ')],['Roman',toRoman(n)||'only 1 to 3,999',''],['Tally marks',n<=40&&n>0?'<s>||||</s> '.repeat(Math.floor(n/5))+'|'.repeat(n%5):(n?'too many to draw':'none'),'']];
+  out.innerHTML=`<div class="tablebox" style="margin:0"><table><tr><th>System</th><th>Value</th><th>Expanded</th></tr>${rows.map(r=>`<tr><td><b>${r[0]}</b></td><td style="font-family:var(--mono)">${r[1]}</td><td style="font-family:var(--mono);font-size:.85rem">${r[2]}</td></tr>`).join('')}</table></div>`+working(n,raw,base);
+}
+['numIn','numBase'].forEach(id=>document.getElementById(id).addEventListener('input',runNum));runNum();
+(function(){const R=9,P=[];for(let n=0;n<R;n++){P[n]=[];for(let k=0;k<=n;k++)P[n][k]=k===0||k===n?1:P[n-1][k-1]+P[n-1][k]}
+  const hue=['var(--indigo)','var(--madder)','var(--gold)'];
+  let sel=-1;const draw=()=>{document.getElementById('pascal').innerHTML=P.map((row,n)=>`<div class="prow">${row.map((v,k)=>{const d=n+k;return `<span data-d="${d}" class="${d===sel?'on':''}">${v}</span>`}).join('')}</div>`).join('');
+    const sums=[...Array(R).keys()].map(d=>{let s=0;for(let n=0;n<R;n++){const k=d-n;if(k>=0&&k<=n&&n+k===d)s+=P[n][k]}return s});
+    document.getElementById('pdiag').innerHTML='Shallow diagonal sums: '+sums.map((s,d)=>`<button data-d="${d}" class="${d===sel?'on':''}">${s}</button>`).join(' ')+' … the Fibonacci numbers.';
+    document.querySelectorAll('#pascal span,#pdiag button').forEach(e=>e.onclick=()=>{sel=+e.dataset.d===sel?-1:+e.dataset.d;draw()})};draw()})();
+
+function working(n,raw,base){
+  const H='0123456789ABCDEF',dg=d=>d>9?`${d} = ${H[d]}`:`${d}`;
+  let html='';
+  if(base!==10){
+    if(base===0){html+=`<details open><summary>Roman → decimal</summary><p class="sub">Add the symbol values, but subtract a smaller symbol that comes before a larger one (IV = 4, IX = 9, XL = 40, XC = 90, CD = 400, CM = 900).</p><p style="font-family:var(--mono)">${raw.toUpperCase()} = ${n}</p></details>`}
+    else{const d=raw.toUpperCase().split('');const parts=d.map((c,i)=>{const v=parseInt(c,16),p=base**(d.length-1-i);return {c,v,p}});
+      html+=`<details open><summary>Method 1: base ${base} → decimal</summary><div class="tablebox"><table class="steps"><tr><th>Digit</th><th>Value</th><th>Place value</th><th>Product</th></tr>${parts.map(x=>`<tr><td>${x.c}</td><td>${x.v}</td><td>${base}<sup>${Math.round(Math.log(x.p)/Math.log(base))}</sup> = ${x.p.toLocaleString('en-US')}</td><td>${(x.v*x.p).toLocaleString('en-US')}</td></tr>`).join('')}<tr><td colspan="3"><b>Total</b></td><td><b>${n.toLocaleString('en-US')}</b></td></tr></table></div></details>`}}
+  for(const b of [2,8,16]){if(b===base)continue;const st=[];let t=n;if(t===0)st.push([0,0,0]);while(t>0){st.push([t,Math.floor(t/b),t%b]);t=Math.floor(t/b)}
+    if(st.length>24)continue;
+    html+=`<details><summary>Method 2: decimal ${n.toLocaleString('en-US')} → base ${b}</summary><div class="tablebox"><table class="steps"><tr><th>÷ ${b}</th><th>quotient</th><th>remainder</th></tr>${st.map((r,i)=>`<tr><td>${r[0].toLocaleString('en-US')}</td><td>${r[1].toLocaleString('en-US')}</td><td>${dg(r[2])}${i===st.length-1?' ↑':''}</td></tr>`).join('')}</table></div><p class="sub">Read the remainders from the bottom up: <b>${n.toString(b).toUpperCase()}</b><sub>${b}</sub></p></details>`}
+  const bin=n.toString(2);if(bin.length<=40){
+    const grp=(s,k)=>{const pad=s.padStart(Math.ceil(s.length/k)*k,'0');return pad.match(new RegExp(`.{${k}}`,'g'))};
+    const g3=grp(bin,3),g4=grp(bin,4);
+    html+=`<details><summary>Method 3: grouping binary digits</summary><p style="font-family:var(--mono);font-size:.9rem">Binary ${bin}<br>Groups of 3 → octal: ${g3.join(' | ')} → ${g3.map(g=>parseInt(g,2)).join(' ')} = <b>${n.toString(8)}₈</b><br>Groups of 4 → hex: ${g4.join(' | ')} → ${g4.map(g=>H[parseInt(g,2)]).join(' ')} = <b>${n.toString(16).toUpperCase()}₁₆</b></p><p class="sub">Pad with zeros on the left so every group is full. Octal and hex convert to each other through these same binary digits.</p></details>`}
+  return html;
+}
+runNum();
+
+</script>
+
+</body>
+</html>

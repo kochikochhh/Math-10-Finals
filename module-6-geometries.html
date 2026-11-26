@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Geometries Reviewer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: single reading column, sticky tab bar (Reviewer / Quiz), woven-band motif as section dividers */
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --ink:#1b1d33; --muted:#5a5e7a; --line:#dcdfec;
+  --indigo:#2c3a8c; --madder:#b8323a; --gold:#c08a12; --tint:#e9ecf8; --ok:#1f7a4d; --bad:#b8323a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,7vw,3.1rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700;color:var(--indigo)}
+h3{font-size:1.12rem;font-weight:700;margin-top:1.4em}
+p{margin:.6em 0}
+a{color:var(--indigo)}
+header{padding-block:28px 12px}
+.eyebrow{font:500 .75rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--madder)}
+.lede{color:var(--muted);max-width:60ch}
+/* woven band */
+.band{height:14px;border-radius:2px;margin:6px 0 0;
+  background:
+   repeating-linear-gradient(90deg,var(--indigo) 0 10px,transparent 10px 20px),
+   repeating-linear-gradient(90deg,transparent 0 5px,var(--madder) 5px 10px,transparent 10px 20px),
+   var(--gold);
+  background-size:20px 7px,20px 7px,auto;background-position:0 0,10px 7px,0 0;background-repeat:repeat-x}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;gap:8px;border-bottom:1px solid var(--line)}
+nav button{flex:1;font:700 1rem var(--display);padding:10px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+nav button[aria-selected="true"]{background:var(--indigo);border-color:var(--indigo);color:var(--bg)}
+button:focus-visible,summary:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
+.toc a{font:500 .8rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted);background:var(--surface)}
+section{padding-block:28px 6px}
+section>.band{margin-bottom:14px;width:64px}
+ul{padding-left:1.2em;margin:.5em 0}
+li{margin:.25em 0}
+.examples{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));margin:12px 0}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.ex b{display:block;font-family:var(--display);font-size:1rem}
+.ex span{color:var(--muted);font-size:.93rem}
+.tag{display:inline-block;font:500 .68rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--madder);margin-bottom:2px}
+.tablebox{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.95rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--tint)}
+tr:last-child td{border-bottom:0}
+.key{background:var(--tint);border-left:4px solid var(--madder);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+.key strong{color:var(--madder)}
+.poem{font-family:var(--mono);font-size:.9rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;white-space:pre;overflow-x:auto;line-height:1.7}
+.poem .n{color:var(--gold)}
+.fib{display:flex;align-items:flex-end;gap:4px;height:70px;margin:10px 0}
+.fib i{display:block;width:18px;background:var(--indigo);border-radius:3px 3px 0 0;font:500 .65rem var(--mono);color:var(--bg);text-align:center;font-style:normal}
+/* quiz */
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;margin:18px 0 8px}
+.progress{flex:1 1 180px;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress div{height:100%;background:var(--madder);width:0;transition:width .3s}
+.count{font:500 .85rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.qtopic{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--madder)}
+.qtext{font:700 1.2rem/1.35 var(--display);margin:8px 0 16px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--indigo)}
+.opt .l{font:700 .85rem var(--mono);color:var(--muted);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--tint);font-size:.95rem}
+.explain b.ok{color:var(--ok)} .explain b.no{color:var(--bad)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{font:700 1rem var(--display);padding:10px 18px;border-radius:999px;border:0;background:var(--indigo);color:var(--bg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--indigo);border:1.5px solid var(--indigo)}
+.score{font:800 3.4rem var(--display);color:var(--indigo);font-variant-numeric:tabular-nums;line-height:1}
+.missed{margin-top:14px;display:grid;gap:8px}
+.missed div{border-left:3px solid var(--bad);padding:6px 12px;background:var(--bg);border-radius:0 8px 8px 0;font-size:.93rem}
+.missed em{color:var(--ok);font-style:normal;font-weight:600}
+.small{font-size:.88rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+<header>
+  <p style="margin:0 0 8px"><a href="index.html">← All modules</a></p>
+  <div class="eyebrow">MATH 10 · Module 6</div>
+  <h1>Shapes: The Different Types of Geometries</h1>
+  <div class="band" style="width:140px"></div>
+  <p class="lede">A reviewer on geometry before Euclid, Euclidean geometry, the two non-Euclidean geometries, projective geometry and topology, followed by a quiz with explanations.</p>
+</header>
+
+<nav role="tablist">
+  <button id="tab-rev" role="tab" aria-selected="true" data-view="reviewer">Reviewer</button>
+  <button id="tab-quiz" role="tab" aria-selected="false" data-view="quiz">Quiz</button>
+</nav>
+
+<main id="reviewer">
+  <div class="toc">
+    <a href="#s-intro">Intro</a><a href="#s-before">1 Before Euclid</a><a href="#s-euclid">2 Euclidean</a><a href="#s-noneuc">3 Non-Euclidean</a><a href="#s-proj">4 Projective</a><a href="#s-topo">5 Topology</a><a href="#s-sum">Summary</a>
+  </div>
+
+  <section id="s-intro">
+    <div class="band"></div>
+    <h2>Introduction</h2>
+    <p>Plato: <em>“Let no one enter, who is ignorant of Geometry.”</em> The word <strong>geometry</strong> comes from two Greek words: <strong>geo</strong> (earth) and <strong>metron</strong> (measurement). Early civilizations developed it on their own as a practical way of dealing with <strong>areas, lengths and volumes</strong>.</p>
+  </section>
+
+  <section id="s-before">
+    <div class="band"></div>
+    <h2>1. Before Euclid</h2>
+    <div class="examples">
+      <div class="ex"><span class="tag">Babylonians</span><b>Clay tablets</b><span>400 tablets in cuneiform script, unearthed in the 1850s. Gave formulas for areas and volumes (circles, cylinders). Circumference ≈ 3 × diameter, so they approximated <strong>π ≈ 3</strong>. They had Pythagorean triples, but no source shows they knew the theorem itself.</span></div>
+      <div class="ex"><span class="tag">Egyptians</span><b>Ahmes / Rhind Papyrus</b><span>Area and volume formulas used to build the pyramids and work out food supply.</span></div>
+      <div class="ex"><span class="tag">Greek</span><b>Eratosthenes</b><span>First to calculate the <strong>circumference of the earth</strong>, very close to the modern value.</span></div>
+      <div class="ex"><span class="tag">Greek</span><b>Pythagoras</b><span>Right triangle: <strong>a² + b² = c²</strong>, where c is opposite the right angle.</span></div>
+      <div class="ex"><span class="tag">Greek</span><b>Archimedes of Syracuse</b><span>Volumes of irregular shapes; accurate approximation of π using the <strong>method of exhaustion</strong> (developed by <strong>Eudoxus of Cnidus</strong>).</span></div>
+      <div class="ex"><span class="tag">Greek</span><b>Irrational numbers</b><span>The Greeks discovered √2, π and the <strong>golden ratio</strong> (divine proportion), φ.</span></div>
+    </div>
+    <h3>The golden ratio</h3>
+    <p>Divide a segment of length 1 into a longer part <em>x</em> and a shorter part 1 − <em>x</em> so that <strong>whole : longer = longer : shorter</strong>:</p>
+    <div class="poem">1/x = x/(1 − x)   →   x² + x − 1 = 0   →   x = (−1 + √5)/2 ≈ 0.618…</div>
+    <p>The value is non-repeating and non-terminating. Its reciprocal is <strong>1.618…</strong>. Rectangles whose length-to-width ratio is the golden ratio are <strong>golden rectangles</strong>, often called the most pleasing proportions.</p>
+    <div class="key"><strong>Heads-up:</strong> the module calls 0.618 “φ” and 1.618 its reciprocal. Most textbooks do it the other way around: φ = 1.618… and 1/φ = 0.618…. For the exam, follow your instructor's convention. Either way, the two numbers differ by exactly 1.</div>
+  </section>
+
+  <section id="s-euclid">
+    <div class="band"></div>
+    <h2>2. Euclidean Geometry</h2>
+    <p><strong>Euclid of Alexandria</strong> (the “father of geometry”) described his system in the textbook <strong><em>The Elements</em></strong>. It is the oldest geometry, so for more than a thousand years nobody needed to call it “Euclidean.” Many results came from earlier mathematicians. Euclid was the first to fit them into one <strong>deductive, logical system</strong>.</p>
+    <p><strong>Undefined terms:</strong> point, line, plane.</p>
+    <h3>2.1 Axioms (common notions)</h3>
+    <ul>
+      <li>Things equal to the same thing are equal to each other.</li>
+      <li>If equals are added to equals, the wholes are equal.</li>
+      <li>If equals are subtracted from equals, the remainders are equal.</li>
+      <li>Things that coincide with one another are equal to one another.</li>
+      <li>The whole is greater than the part.</li>
+    </ul>
+    <h3>2.2 The five postulates</h3>
+    <div class="tablebox"><table>
+      <tr><th>#</th><th>Postulate</th></tr>
+      <tr><td>1</td><td>A straight line can be drawn from any point to any point.</td></tr>
+      <tr><td>2</td><td>A finite straight line can be extended continuously in a straight line.</td></tr>
+      <tr><td>3</td><td>A circle can be drawn with any center and any radius.</td></tr>
+      <tr><td>4</td><td>All right angles are equal.</td></tr>
+      <tr><td>5</td><td>If a transversal makes interior angles on one side summing to <strong>less than two right angles</strong> (&lt; 180°), the two lines meet on that side. This is the <strong>Parallel Postulate</strong>.</td></tr>
+    </table></div>
+    <p>Postulates 1 to 4 seemed obvious. The 5th was long and complicated, and many thought it could be proven from the others, but no one could. They only produced <strong>equivalent statements</strong>:</p>
+    <div class="tablebox"><table>
+      <tr><th>Who</th><th>When</th><th>Restatement</th></tr>
+      <tr><td>Posidonius</td><td>100 BC</td><td>“Two lines are equidistant.”</td></tr>
+      <tr><td>Proclus</td><td>5th century</td><td>If a line intersects one of two parallel lines, it intersects the other.</td></tr>
+      <tr><td>Legendre</td><td>18th century</td><td>The sum of the interior angles of a triangle is 180°.</td></tr>
+      <tr><td><b>Playfair</b></td><td>19th century</td><td><b>Playfair's Axiom</b> (most popular): through a point P not on line l, there is <b>exactly one</b> line through P parallel to l.</td></tr>
+    </table></div>
+    <p>A <strong>plane</strong> models Euclidean geometry.</p>
+    <h3>Triangles in Euclidean geometry</h3>
+    <ul>
+      <li>Interior angles sum to <strong>exactly 180°</strong>.</li>
+      <li><strong>Congruent</strong> = same size and shape. Criteria: <strong>SSS</strong> (three sides), <strong>SAS</strong> (two sides and the included angle), <strong>ASA</strong> (two angles and the included side).</li>
+      <li><strong>Similar</strong> = same shape, possibly different size; corresponding angles are equal.</li>
+      <li>Congruent triangles are always similar, but similar triangles <strong>need not</strong> be congruent.</li>
+    </ul>
+  </section>
+
+  <section id="s-noneuc">
+    <div class="band"></div>
+    <h2>3. Non-Euclidean Geometries</h2>
+    <p>Activity 2 (tearing off a triangle's three angles to form a straight line) shows the Euclidean 180°. Mathematicians then asked two “what if” questions about Playfair's Axiom. Trying to prove the 5th postulate gave rise to new, equally consistent geometries.</p>
+    <h3>3.1 Hyperbolic geometry: “what if there is more than one parallel?”</h3>
+    <ul>
+      <li>Studied in the early 1800s by <strong>Nikolai Lobachevsky</strong> (Russian), <strong>János Bolyai</strong> (Hungarian) and <strong>Carl Friedrich Gauss</strong> (German). Gauss was first but never published, so Lobachevsky and Bolyai got the credit.</li>
+      <li>Lobachevsky published first (1829, <em>Geometrical Researches on the Theory of Parallels</em>); Bolyai three years later (1832).</li>
+      <li>Model: the <strong>Poincaré disk</strong> (Henri Poincaré). Points are inside the disk, not on the boundary. Lines are diameters or arcs that meet the boundary at right angles.</li>
+      <li>Postulate: through P not on l, there are <strong>at least two</strong> lines parallel to l.</li>
+      <li>Triangle angle sum is <strong>less than 180°</strong>. Similar triangles are congruent.</li>
+    </ul>
+    <h3>3.2 Elliptic geometry: “what if there is no parallel?”</h3>
+    <ul>
+      <li>Studied deeply by <strong>Bernhard Riemann</strong> (1826–1866).</li>
+      <li>Model: a <strong>sphere (globe)</strong>. Lines are <strong>great circles</strong>, the circles of maximum diameter, such as the equator or any longitude line. Every great circle through the North Pole hits the equator.</li>
+      <li>Postulate: through P not on l, there is <strong>no</strong> line parallel to l. All lines intersect.</li>
+      <li>Triangle angle sum is <strong>more than 180°</strong>. Similar triangles are congruent.</li>
+      <li>Used in <strong>sea and air navigation</strong> for distances and flight paths.</li>
+    </ul>
+    <h3>Compare the three</h3>
+    <div class="tablebox"><table>
+      <tr><th></th><th>Euclidean</th><th>Hyperbolic</th><th>Elliptic</th></tr>
+      <tr><td><b>Parallels through P</b></td><td>Exactly one</td><td>At least two</td><td>None</td></tr>
+      <tr><td><b>Triangle angle sum</b></td><td>= 180°</td><td>&lt; 180°</td><td>&gt; 180°</td></tr>
+      <tr><td><b>Similar ⇒ congruent?</b></td><td>No</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td><b>Model</b></td><td>Plane</td><td>Poincaré disk</td><td>Sphere</td></tr>
+      <tr><td><b>Key people</b></td><td>Euclid</td><td>Lobachevsky, Bolyai, Gauss</td><td>Riemann</td></tr>
+    </table></div>
+    <svg viewBox="0 0 480 130" role="img" aria-label="Euclidean triangle with straight sides, hyperbolic triangle with sides curving inward, elliptic triangle with sides bulging outward" style="width:100%;max-width:480px;display:block;margin:10px 0;color:var(--indigo)">
+      <g fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M30 105 L140 105 L85 20 Z"/>
+        <path d="M190 105 Q245 85 300 105 Q260 70 245 20 Q230 70 190 105 Z"/>
+        <path d="M350 105 Q405 125 460 105 Q450 50 405 20 Q360 50 350 105 Z"/>
+      </g>
+      <g fill="var(--muted)" font-family="JetBrains Mono, monospace" font-size="12" text-anchor="middle">
+        <text x="85" y="125">= 180°</text><text x="245" y="125">&lt; 180°</text><text x="405" y="128">&gt; 180°</text>
+      </g>
+    </svg>
+  </section>
+
+  <section id="s-proj">
+    <div class="band"></div>
+    <h2>4. Projective Geometry</h2>
+    <ul>
+      <li><strong>Gérard Desargues</strong>, French mathematician and engineer, is the <strong>father of projective geometry</strong>. He treated parallel lines as meeting at an <strong>ideal point</strong>, so any two lines in a plane intersect.</li>
+      <li>Triangles ABC and abc are <strong>perspective from a point P</strong> if lines Aa, Bb, Cc meet at P, the <strong>center of perspectivity</strong>.</li>
+      <li>They are <strong>perspective from a line l</strong> if corresponding sides meet at points on l, the <strong>axis of perspectivity</strong>.</li>
+    </ul>
+    <div class="key"><strong>Desargues' Theorem:</strong> if two triangles are perspective from a point, then they are perspective from a line.</div>
+    <p>Projective geometry studies <strong>vanishing points and perspective</strong>. Renaissance artists used it to paint 3D-looking scenes. Today it helps create 3D images in games like <em>Pac-Man</em> and <em>Super Mario Bros.</em>, and appears in machine vision (Mundy &amp; Zisserman).</p>
+  </section>
+
+  <section id="s-topo">
+    <div class="band"></div>
+    <h2>5. Topology</h2>
+    <p>Space came to be seen as a set of points plus abstract relations among them. <strong>Henri Poincaré</strong> published a systematic treatment in 1895 (the module cites <em>Vorstudien zur Topologie</em>). Topology was the work of many: Cantor, Euler, Fréchet, Hausdorff, Möbius and Riemann.</p>
+    <ul>
+      <li><strong>Topological transformations</strong> are allowed: stretching, shrinking, twisting and bending, as long as points stay distinct.</li>
+      <li><strong>Not allowed:</strong> cutting, tearing, puncturing or merging points.</li>
+      <li>Two figures are <strong>topologically equivalent</strong> if one can be deformed into the other this way. A circle, a square and a triangle are equivalent, like a square rubber band stretched into a triangle.</li>
+      <li>A <strong>coffee cup and a doughnut</strong> are equivalent (each has one hole). A coffee cup and a <strong>muffin</strong> are not.</li>
+    </ul>
+    <h3>Activity 4: the Möbius strip</h3>
+    <p>Give a paper strip a <strong>half twist</strong> and tape the ends (A to D, B to C). A line drawn down the middle covers “both sides” without lifting the pen, because the strip has <strong>only one side</strong>. Cutting along that center line gives <strong>one larger loop</strong>, not two.</p>
+  </section>
+
+  <section id="s-sum">
+    <div class="band"></div>
+    <h2>Big ideas</h2>
+    <ul>
+      <li>Euclidean geometry was in use (Egypt, Babylon) long before Euclid formalized it.</li>
+      <li>We can build many consistent mathematical systems from different assumptions.</li>
+      <li><strong>Riemannian geometry</strong> (non-Euclidean) gave the framework for <strong>Einstein's general relativity</strong> about forty years later.</li>
+      <li>Bolyai: <em>“Out of nothing, I have created a strange new universe.”</em></li>
+    </ul>
+  </section>
+  <p class="small" style="margin-top:28px">Ready? <a href="#quiz">Take the quiz →</a></p>
+</main>
+
+<main id="quiz" hidden>
+  <div class="qbar"><div class="progress"><div id="pbar"></div></div><span class="count" id="count"></span></div>
+  <div class="card" id="qcard"></div>
+</main>
+</div>
+
+<script>
+const Q=[
+["Intro","The word “geometry” comes from Greek words meaning:",["Shape and size","Earth and measurement","Line and point","Space and time"],1,"Geo = earth, metron = measurement."],
+["Before Euclid","The Babylonians approximated π as:",["3","3.14","22/7","3.16"],0,"They took the circumference to be three times the diameter, which was enough for their building projects."],
+["Before Euclid","The Ahmes Papyrus is also known as the:",["Plimpton Tablet","Rhind Mathematical Papyrus","Moscow Papyrus","Dead Sea Scroll"],1,"It records Egyptian area and volume formulas."],
+["Before Euclid","Who first calculated the circumference of the earth?",["Thales","Archimedes","Eratosthenes","Pythagoras"],2,"His result was remarkably close to the modern value."],
+["Before Euclid","Archimedes approximated π using the method of exhaustion, which was developed by:",["Euclid","Eudoxus of Cnidus","Plato","Thales"],1,"Archimedes applied Eudoxus' method."],
+["Before Euclid","Dividing a unit segment so that 1/x = x/(1−x) leads to which equation?",["x² − x − 1 = 0","x² + x − 1 = 0","x² + x + 1 = 0","x² − 1 = 0"],1,"Cross-multiplying gives 1 − x = x², so x² + x − 1 = 0, and x ≈ 0.618."],
+["Euclid","Euclid's system is described in his textbook:",["Almagest","Principia","The Elements","Arithmetica"],2,"The Elements organized earlier results into one deductive system."],
+["Euclid","Which are the undefined terms in geometry?",["Angle, ray, segment","Point, line, plane","Circle, radius, center","Triangle, square, polygon"],1,"Points, lines and planes are left undefined."],
+["Euclid","Which of these is one of Euclid's axioms?",["All right angles are equal","The whole is greater than the part","A circle can be drawn with any radius","Two lines are equidistant"],1,"The others are postulates or restatements of the 5th postulate."],
+["Euclid","Euclid's 5th postulate is also called the:",["Circle Postulate","Right Angle Postulate","Parallel Postulate","Line Postulate"],2,"It describes what happens to a pair of parallel lines."],
+["Euclid","Playfair's Axiom says that through a point P not on line l there is:",["No line parallel to l","Exactly one line parallel to l","At least two lines parallel to l","Infinitely many lines meeting l"],1,"This is the most popular form of the 5th postulate."],
+["Euclid","Who restated the 5th postulate as “The sum of the interior angles of a triangle is 180°”?",["Proclus","Posidonius","Legendre","Playfair"],2,"Legendre, in the 18th century."],
+["Euclid","Which is NOT one of the module's congruence criteria?",["SSS","SAS","ASA","AAA"],3,"AAA only gives similarity in Euclidean geometry, not congruence."],
+["Euclid","In Euclidean geometry, which statement is true?",["Similar triangles are always congruent","Congruent triangles are always similar","Similar triangles have equal sides","Congruent triangles can differ in size"],1,"Same size and shape implies same shape, but not the other way around."],
+["Non-Euclidean","In hyperbolic geometry, through P not on l there are:",["No parallels","Exactly one parallel","At least two parallels","Only perpendiculars"],2,"Hyperbolic geometry negates Playfair's Axiom in the “more than one” direction."],
+["Non-Euclidean","The angle sum of a hyperbolic triangle is:",["Exactly 180°","Less than 180°","More than 180°","Always 360°"],1,"Hyperbolic triangles curve inward."],
+["Non-Euclidean","Who published hyperbolic geometry first, in 1829?",["Bolyai","Gauss","Lobachevsky","Riemann"],2,"Bolyai published in 1832. Gauss got there first but never published."],
+["Non-Euclidean","The disk model of hyperbolic geometry is credited to:",["Henri Poincaré","Bernhard Riemann","Gérard Desargues","Euclid"],0,"In the Poincaré disk, lines are diameters or arcs meeting the boundary at right angles."],
+["Non-Euclidean","In the spherical model of elliptic geometry, “lines” are:",["Latitude circles","Great circles","Tangent lines","Diameters of the sphere"],1,"Great circles, like the equator or any longitude, have maximum diameter."],
+["Non-Euclidean","The angle sum of an elliptic triangle is:",["Less than 180°","Exactly 180°","More than 180°","Exactly 90°"],2,"Triangles on a sphere bulge outward."],
+["Non-Euclidean","Elliptic geometry was studied deeply by:",["Lobachevsky","Riemann","Playfair","Archimedes"],1,"Bernhard Riemann (1826–1866)."],
+["Non-Euclidean","Which geometry is used in sea and air navigation?",["Euclidean","Hyperbolic","Elliptic (spherical model)","Projective"],2,"Distances and flight paths on the globe follow great circles."],
+["Non-Euclidean","In which geometries are similar triangles always congruent?",["Euclidean only","Hyperbolic and elliptic","Euclidean and elliptic","None of them"],1,"Both non-Euclidean geometries have this property."],
+["Projective","Who is the father of projective geometry?",["Gérard Desargues","René Descartes","Henri Poincaré","Leonardo da Vinci"],0,"He introduced the ideal point where parallel lines meet."],
+["Projective","Desargues' Theorem: if two triangles are perspective from a point, then they are:",["Congruent","Similar","Perspective from a line","Topologically equivalent"],2,"The point is the center of perspectivity; the line is the axis of perspectivity."],
+["Topology","Which is NOT an allowed topological transformation?",["Stretching","Twisting","Bending","Cutting"],3,"Cutting, tearing, puncturing and merging points are not allowed."],
+["Topology","To a topologist, a coffee cup is equivalent to a:",["Muffin","Doughnut","Sphere","Cube"],1,"Both have exactly one hole."],
+["Topology","Cutting a Möbius strip along its center line produces:",["Two separate loops","One larger loop","A flat strip","Two linked loops"],1,"The module's activity shows it stays a single, larger loop."],
+["Big ideas","Riemannian geometry gave the framework for:",["Newton's laws","Einstein's general relativity","Pythagorean Theorem","Calculus"],1,"Einstein formulated general relativity about forty years later."]
+];
+let order=[],i=0,score=0,answered=false,missed=[];
+const card=document.getElementById('qcard'),pbar=document.getElementById('pbar'),cnt=document.getElementById('count');
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a}
+function start(){Q.forEach(x=>{const ok=x[2][x[3]];x[2]=shuffle(x[2]);x[3]=x[2].indexOf(ok);});order=shuffle(Q.map((_,k)=>k));i=0;score=0;missed=[];render()}
+function render(){
+  answered=false;
+  pbar.style.width=(i/order.length*100)+'%';
+  if(i>=order.length)return finish();
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  card.innerHTML=`<div class="qtopic">${t}</div><div class="qtext">${q}</div><div class="opts">${opts.map((o,k)=>`<button class="opt" id="opt${k}" data-k="${k}"><span class="l">${'ABCD'[k]}</span><span>${o}</span></button>`).join('')}</div><div id="fb"></div>`;
+  card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+}
+function pick(k){
+  if(answered)return;answered=true;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  const btns=card.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  btns[ans].classList.add('right');
+  const ok=k===ans;
+  if(ok)score++;else{btns[k].classList.add('wrong');missed.push([q,opts[ans]])}
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  document.getElementById('fb').innerHTML=`<div class="explain"><b class="${ok?'ok':'no'}">${ok?'Correct.':'Not quite.'}</b> ${why}</div><div class="actions"><button class="btn" id="next">${i+1<order.length?'Next question':'See results'}</button></div>`;
+  const n=document.getElementById('next');n.onclick=()=>{i++;render()};n.focus();
+}
+function finish(){
+  const pct=Math.round(score/order.length*100);
+  cnt.textContent=`Done · ${score}/${order.length}`;
+  const msg=pct>=90?'Excellent. You know this module well.':pct>=75?'Good work. Review the items below.':pct>=50?'Getting there. Go over the sections you missed.':'Revisit the reviewer, then try again.';
+  card.innerHTML=`<div class="qtopic">Results</div><div class="score">${score}<span style="font-size:1.4rem;color:var(--muted)"> / ${order.length}</span></div><p>${pct}% · ${msg}</p>${missed.length?`<h3>Review these</h3><div class="missed">${missed.map(([q,a])=>`<div>${q}<br><em>Answer: ${a}</em></div>`).join('')}</div>`:''}<div class="actions"><button class="btn" id="again">Retake (shuffled)</button><button class="btn ghost" id="back">Back to reviewer</button></div>`;
+  document.getElementById('again').onclick=start;
+  document.getElementById('back').onclick=()=>{location.hash='reviewer';};
+}
+function show(v){
+  const quiz=v==='quiz';
+  document.getElementById('reviewer').hidden=quiz;
+  document.getElementById('quiz').hidden=!quiz;
+  document.getElementById('tab-rev').setAttribute('aria-selected',!quiz);
+  document.getElementById('tab-quiz').setAttribute('aria-selected',quiz);
+  if(quiz&&!order.length)start();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{location.hash=b.dataset.view});
+function route(){const h=location.hash.slice(1);if(h==='quiz')show('quiz');else if(h==='reviewer'||!h)show('reviewer');else{show('reviewer');const el=document.getElementById(h);if(el)el.scrollIntoView();}}
+window.addEventListener('hashchange',route);route();
+
+</script>
+
+</body>
+</html>

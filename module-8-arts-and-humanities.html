@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Math in the Arts Reviewer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: single reading column, sticky tab bar (Reviewer / Quiz), woven-band motif as section dividers */
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --ink:#1b1d33; --muted:#5a5e7a; --line:#dcdfec;
+  --indigo:#2c3a8c; --madder:#b8323a; --gold:#c08a12; --tint:#e9ecf8; --ok:#1f7a4d; --bad:#b8323a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,7vw,3.1rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700;color:var(--indigo)}
+h3{font-size:1.12rem;font-weight:700;margin-top:1.4em}
+p{margin:.6em 0}
+a{color:var(--indigo)}
+header{padding-block:28px 12px}
+.eyebrow{font:500 .75rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--madder)}
+.lede{color:var(--muted);max-width:60ch}
+/* woven band */
+.band{height:14px;border-radius:2px;margin:6px 0 0;
+  background:
+   repeating-linear-gradient(90deg,var(--indigo) 0 10px,transparent 10px 20px),
+   repeating-linear-gradient(90deg,transparent 0 5px,var(--madder) 5px 10px,transparent 10px 20px),
+   var(--gold);
+  background-size:20px 7px,20px 7px,auto;background-position:0 0,10px 7px,0 0;background-repeat:repeat-x}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;gap:8px;border-bottom:1px solid var(--line)}
+nav button{flex:1;font:700 1rem var(--display);padding:10px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+nav button[aria-selected="true"]{background:var(--indigo);border-color:var(--indigo);color:var(--bg)}
+button:focus-visible,summary:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
+.toc a{font:500 .8rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted);background:var(--surface)}
+section{padding-block:28px 6px}
+section>.band{margin-bottom:14px;width:64px}
+ul{padding-left:1.2em;margin:.5em 0}
+li{margin:.25em 0}
+.examples{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));margin:12px 0}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.ex b{display:block;font-family:var(--display);font-size:1rem}
+.ex span{color:var(--muted);font-size:.93rem}
+.tag{display:inline-block;font:500 .68rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--madder);margin-bottom:2px}
+.tablebox{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.95rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--tint)}
+tr:last-child td{border-bottom:0}
+.key{background:var(--tint);border-left:4px solid var(--madder);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+.key strong{color:var(--madder)}
+.poem{font-family:var(--mono);font-size:.9rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;white-space:pre;overflow-x:auto;line-height:1.7}
+.poem .n{color:var(--gold)}
+.fib{display:flex;align-items:flex-end;gap:4px;height:70px;margin:10px 0}
+.fib i{display:block;width:18px;background:var(--indigo);border-radius:3px 3px 0 0;font:500 .65rem var(--mono);color:var(--bg);text-align:center;font-style:normal}
+/* quiz */
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;margin:18px 0 8px}
+.progress{flex:1 1 180px;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress div{height:100%;background:var(--madder);width:0;transition:width .3s}
+.count{font:500 .85rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.qtopic{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--madder)}
+.qtext{font:700 1.2rem/1.35 var(--display);margin:8px 0 16px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--indigo)}
+.opt .l{font:700 .85rem var(--mono);color:var(--muted);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--tint);font-size:.95rem}
+.explain b.ok{color:var(--ok)} .explain b.no{color:var(--bad)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{font:700 1rem var(--display);padding:10px 18px;border-radius:999px;border:0;background:var(--indigo);color:var(--bg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--indigo);border:1.5px solid var(--indigo)}
+.score{font:800 3.4rem var(--display);color:var(--indigo);font-variant-numeric:tabular-nums;line-height:1}
+.missed{margin-top:14px;display:grid;gap:8px}
+.missed div{border-left:3px solid var(--bad);padding:6px 12px;background:var(--bg);border-radius:0 8px 8px 0;font-size:.93rem}
+.missed em{color:var(--ok);font-style:normal;font-weight:600}
+.small{font-size:.88rem;color:var(--muted)}
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;display:grid;gap:10px}
+.calc>*{min-width:0}
+.calc .row{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))}
+.calc .sub{color:var(--muted);font-size:.88rem}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{font:500 .78rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink);cursor:pointer}
+.presets button.on{background:var(--indigo);color:var(--bg);border-color:var(--indigo)}
+.wgrid{display:grid;gap:3px;max-width:240px}
+.wgrid button{aspect-ratio:1;border:1px solid var(--line);border-radius:3px;cursor:pointer;padding:0;background:var(--bg)}
+.wgrid button.on{background:var(--indigo);border-color:var(--indigo)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p style="margin:0 0 8px"><a href="index.html">← All modules</a></p>
+  <div class="eyebrow">MATH 10 · Module 8</div>
+  <h1>Mathematics in the Arts &amp; Humanities</h1>
+  <div class="band" style="width:140px"></div>
+  <p class="lede">A reviewer covering music, dance, weaving, architecture and poetry, followed by a 36-item quiz with explanations.</p>
+</header>
+
+<nav role="tablist">
+  <button id="tab-rev" role="tab" aria-selected="true" data-view="reviewer">Reviewer</button>
+  <button id="tab-quiz" role="tab" aria-selected="false" data-view="quiz">Quiz</button>
+</nav>
+
+<main id="reviewer">
+  <div class="toc">
+    <a href="#s-intro">Intro</a><a href="#s-music">1 Music</a><a href="#s-dance">2 Dance</a><a href="#s-weave">3 Weaving</a><a href="#tool-weave">Weave grid</a><a href="#s-arch">4 Architecture</a><a href="#s-poem">5 Poetry</a>
+  </div>
+
+  <section id="s-intro">
+    <div class="band"></div>
+    <h2>Introduction</h2>
+    <p>At the core of both math and art lies the concept of <strong>patterns</strong>. Art uses <strong>symmetries</strong> and <strong>transformations</strong> that move an object along a line or in the plane without changing its size or shape.</p>
+    <div class="key">Math shows up in art in <strong>two ways</strong>: (1) its concepts are used as <strong>artistic tools</strong>, and (2) math becomes the <strong>major subject</strong> of the artwork.</div>
+    <h3>Examples to remember</h3>
+    <div class="examples">
+      <div class="ex"><span class="tag">Graphic art</span><b>M.C. Escher</b><span>Dutch artist; tessellations using irregular polygons.</span></div>
+      <div class="ex"><span class="tag">Film</span><b>Flatland</b><span>Line, plane, 3D space; polygon characters stuck in a 2D world.</span></div>
+      <div class="ex"><span class="tag">Literature</span><b>Alice in Wonderland</b><span>Math allegory by Charles Lutwidge Dodgson (Lewis Carroll), 1865. Analyzed by Dr. Keith Devlin.</span></div>
+      <div class="ex"><span class="tag">Musical</span><b>Fermat's Last Tango</b><span>Andrew Wiles' attempt to prove Fermat's Last Theorem.</span></div>
+      <div class="ex"><span class="tag">Theater</span><b>Arcadia (Tom Stoppard)</b><span>Chaos theory, fractals, iterated algorithms, Fermat's Last Theorem, thermodynamics.</span></div>
+      <div class="ex"><span class="tag">Painting</span><b>Vincent Van Gogh</b><span>Depicted <em>turbulence</em> in his skyscape before sunrise, June 1889 (The Starry Night).</span></div>
+      <div class="ex"><span class="tag">Sculpture</span><b>Santiago Calatrava, “Wave”</b><span>Kinetic sculpture of the sine-cosine curve; Meadows Museum, 2002.</span></div>
+      <div class="ex"><span class="tag">Painting</span><b>Salvador Dalí, “The Face of War”</b><span>1941; used <em>fractals</em> to show the endless misery of war.</span></div>
+      <div class="ex"><span class="tag">Painting · PH</span><b>Vicente Manansala</b><span>National Artist for Visual Arts; angles and geometry in his <em>transparent cubism</em>.</span></div>
+    </div>
+  </section>
+
+  <section id="s-music">
+    <div class="band"></div>
+    <h2>1. Mathematical Music</h2>
+    <p><strong>Beethoven</strong>, despite hearing impairment, relied on mathematical patterns to compose. The TED-Ed lesson on the <em>Moonlight Sonata</em> analyzes consonance and dissonance using <strong>sine waves</strong> (the sine function), comparing the frequency ratios of notes: simple ratios sound consonant, complex ones dissonant.</p>
+    <div class="key"><strong>Rhythm</strong> is a combination of sounds and spaces. (Drummer Ndugu Chancler, “The Rhythm Track”)</div>
+    <p><strong>Dr. James Stewart</strong> (author of the best-selling Calculus books, also a violinist) said music relates to math in <strong>four aspects</strong>: rhythm, harmony, melody and form. He spoke at the MAA Distinguished Lecture Series in 2010, using Beethoven's <em>Fifth Symphony</em> to show these counterparts:</p>
+    <div class="tablebox"><table>
+      <tr><th>Geometric transformation</th><th>Music</th></tr>
+      <tr><td>Translation</td><td><b>Transposition</b></td></tr>
+      <tr><td>Reflection about a horizontal axis</td><td><b>Inversion</b></td></tr>
+      <tr><td>Reflection about a vertical axis</td><td><b>Retrogression</b> (played backwards)</td></tr>
+      <tr><td>Rotation by 180°</td><td><b>Retrograde inversion</b></td></tr>
+      <tr><td>Dilation, scale factor &gt; 1</td><td><b>Augmentation</b> (twice as slowly)</td></tr>
+      <tr><td>Dilation, scale factor &lt; 1</td><td><b>Diminution</b> (twice as quickly)</td></tr>
+    </table></div>
+    <p class="small">Memory tip: horizontal axis flips pitch up/down (inversion); vertical axis flips time left/right (retrograde). Doing both = 180° rotation.</p>
+    <p>Composers use these structure-preserving transformations to balance <strong>unity and variation</strong>, as in <strong>J.S. Bach's</strong> fugues and canons. Douglas R. Hofstadter (<em>Gödel, Escher, Bach</em>) drew inspiration from Bach's canon of two complementary, reversed lines.</p>
+    <h3>Crab canon</h3>
+    <p>A canon where the theme is played <strong>backwards in time</strong>, named after the backward walk of crabs. Bach's first canon from <em>The Musical Offering</em> (1747) plays the melody forward and its <strong>retrograde</strong> (reflection about a vertical axis) at the same time. Written out, the score joins end to start, which is why it is often shown on a Möbius strip.</p>
+    <p>The <strong>Möbius strip</strong> is a surface with only <strong>one side and one edge</strong>. The recycling symbol is a variant. Escher's <em>Moebius Strip II</em> (1963) is a woodcut in red, black and grey-green, printed from 3 blocks.</p>
+    <h3>Philippine music &amp; dance (Activity 5)</h3>
+    <ul>
+      <li><strong>Joey Ayala</strong> proposed a different way of singing the national anthem, <em>Lupang Hinirang</em>.</li>
+      <li>Compare the rhythm of the <strong>Tinikling</strong> (bamboo-pole dance; quick steps timed to the clapping poles, commonly in 3/4 time) with the <strong>Singkil</strong> (Maranao royal dance; slower, stately, accompanied by kulintang and clashing bamboo).</li>
+    </ul>
+  </section>
+
+  <section id="s-dance">
+    <div class="band"></div>
+    <h2>2. The Math of Dance</h2>
+    <div class="key">Dance can be described as <strong>geometry in motion</strong>.</div>
+    <p><strong>Math Dance pioneers:</strong> Dr. Karl Schaffer (dancer, choreographer, mathematician), Erik Stern (choreographer, dancer, musician, educator) and Scott Kim (mathematician, graphic artist, puzzle master). They note that math and dance share symmetry, spatial awareness, counting problems and patterns, and that both creatively explore patterns in space and time.</p>
+    <p><strong>Precision in dance:</strong> critic Louis Horst insisted a quarter of an inch makes a difference. Carole de la Paz-Zialcita recalls how National Artist for Dance <strong>Leonor Orosa Goquingco</strong> drilled dancers so every arm was at the same angle; precision was kept by <strong>muscle memory</strong> (first tour abroad: 1961).</p>
+    <h3>Table 1: Dance terms and math concepts</h3>
+    <div class="tablebox"><table>
+      <tr><th>Term</th><th>Dance</th><th>Math</th></tr>
+      <tr><td><b>Direction</b></td><td>Line of movement: forward, backward, sideward, diagonal, upward</td><td><b>Vectors</b>: magnitude and direction (angles)</td></tr>
+      <tr><td><b>Level</b></td><td>Dancer's height relative to floor: high, medium, low</td><td>Points above, on, or below the <b>horizontal axis</b></td></tr>
+      <tr><td><b>Range</b></td><td>Area covered as the body moves</td><td><b>Range of a function</b>, seen from the graph's coverage</td></tr>
+      <tr><td><b>Floor/space pattern</b></td><td>Path or design made while moving</td><td><b>Shape of the graph</b> of a function</td></tr>
+    </table></div>
+    <h3>Four symmetries in choreography</h3>
+    <div class="examples">
+      <div class="ex"><b>Translation</b><span>Sliding symmetry</span></div>
+      <div class="ex"><b>Reflection</b><span>Mirror symmetry</span></div>
+      <div class="ex"><b>Rotation</b><span>Turning symmetry</span></div>
+      <div class="ex"><b>Glide reflection</b><span>Slide + mirror combined</span></div>
+    </div>
+    <h3>Culture connections</h3>
+    <ul>
+      <li><strong>Jesse Wolfson</strong> (PhD math student) helped choreographer <strong>Reggie Wilson</strong> and the Fist and Heel Performance Group use <strong>fractals</strong>: self-similar circles in Bantu-based urban design (city → ring of family enclosures → ring of houses → circular house → tiny ringed ancestral city).</li>
+      <li><strong>Bharata Natyam</strong>: Indian classical dance from Tamil Nadu; arms, legs and torso form sculpture-like shapes and lines.</li>
+      <li><strong>El Gamma Penumbra</strong>: shadow-play group; “We can be violence-free” campaign (Activity 8: identify its symmetries).</li>
+    </ul>
+  </section>
+
+  <section id="s-weave">
+    <div class="band"></div>
+    <h2>3. Weaving Culture</h2>
+    <p>Philippine weaving (textiles, fabric, mats, baskets, ornaments, wall decorations) is full of symmetry and repeated motifs. The module asks: <em>what mathematical concepts are involved in weaving?</em></p>
+    <h3>What the module says</h3>
+    <ul>
+      <li><strong>Dr. Ma. Louise Antonette N. De Las Peñas</strong> spoke on mathematical symmetries of indigenous textiles in the <strong>Floy Quintos collection</strong>.</li>
+      <li>Exhibit: <em>Woven Universes: Math, Method, Meaning, and Magic in Philippine Indigenous Textiles</em>, <strong>Yuchengco Museum</strong>, February 21, 2015.</li>
+      <li>The <strong>UP Sablay</strong> is woven by weavers of <strong>Arevalo, Iloilo</strong> using the <strong>sinuksok</strong> method. Activity 9: spot its symmetries, then design your own symmetric motif.</li>
+      <li>The references also cite studies of <strong>binakol</strong> patterns, <strong>inabel</strong> textiles, and the “algebra of weaving patterns” of the Kankana-ey of Mountain Province.</li>
+    </ul>
+
+    <h3>Weaving basics</h3>
+    <div class="examples">
+      <div class="ex"><span class="tag">Warp</span><b>Lengthwise threads</b><span>Stretched tight on the loom first.</span></div>
+      <div class="ex"><span class="tag">Weft</span><b>Crosswise threads</b><span>Passed over and under the warp, row by row.</span></div>
+      <div class="ex"><span class="tag">Backstrap loom</span><b>Body-tensioned</b><span>The weaver's body keeps the warp tight. Used by the Yakan of Basilan and the Tausug of Jolo.</span></div>
+      <div class="ex"><span class="tag">Pedal / frame loom</span><b>Foot-operated</b><span>Called <em>pagablan</em> or <em>tilar</em> in Ilocos, and <em>tiral</em> or <em>habulan</em> in Panay.</span></div>
+    </div>
+
+    <h3>Philippine weaving methods</h3>
+    <p class="small">Beyond the module: these are well-documented methods, and the sources are listed below.</p>
+    <div class="tablebox"><table>
+      <tr><th>Method</th><th>Where</th><th>How it works</th><th>Math idea</th></tr>
+      <tr><td><b>Sinuksok</b> (suk-suk)</td><td>Iloilo (UP Sablay); Ilocos</td><td>From <em>suksok</em>, “to insert.” Extra pattern threads are tucked in by hand only where the motif goes. This is a <b>discontinuous supplementary weft</b>.</td><td>Motifs repeated by translation and reflection along the sash</td></tr>
+      <tr><td><b>Binakol</b> (binakel, binakael)</td><td>Ilocos, Abra</td><td>Woven on pedal looms using only <b>straight lines</b> that look like curves, whirlwinds and waves: an <b>optical illusion</b> said to ward off evil spirits. It can be two-sided, with the colors reversed on the back.</td><td>Illusion of circles from straight lines; repeated by translation in two directions</td></tr>
+      <tr><td><b>Pinilian</b></td><td>Ilocos, Abra</td><td>A <b>brocade</b> technique: sticks are slipped under selected warp threads, so the designs “float” and look three-dimensional. Mostly nature designs.</td><td>Choosing which threads to lift is a pattern of 0s and 1s</td></tr>
+      <tr><td><b>Inabel</b> (abel)</td><td>Ilocos</td><td>The Ilocano cotton weaving tradition as a whole. Patterns include <em>binakul</em>, <em>kusikos</em> (spirals), <em>inuritan</em> (geometric) and <em>sinan-sabong</em> (flowers).</td><td>Rich in wallpaper (2-D) symmetry</td></tr>
+      <tr><td><b>Ikat</b></td><td>Ifugao (Kiangan, Banaue, Hungduan); also T'boli <em>t'nalak</em></td><td><b>Resist-dyeing</b>: yarn bundles are tied and dyed <em>before</em> weaving, so the pattern is set before the yarn reaches the loom.</td><td>The design must be planned in advance on the threads</td></tr>
+      <tr><td><b>Plaid / checks</b> (hablon, patadyong)</td><td>Iloilo, Antique, Panay</td><td>Colored warp and weft cross to form checks. The patadyong is a tubular plaid skirt.</td><td>A grid: color = row color × column color</td></tr>
+      <tr><td><b>Yakan</b> weaving</td><td>Basilan, Zamboanga</td><td>Backstrap loom, with dense geometric designs such as diamonds (<em>bunga sama</em>). <em>Peneh pitumpuh</em> fits 70 designs in one meter.</td><td>Repeating diamonds tile the plane</td></tr>
+    </table></div>
+
+    <h3>The math inside a weave</h3>
+    <ul>
+      <li><strong>A weave is a grid of 0s and 1s.</strong> In each cell, either the warp is on top (1) or the weft is (0). Plain weave is a checkerboard, and twill shifts the pattern one step each row, which makes diagonals.</li>
+      <li><strong>Repeat unit:</strong> the smallest block that, copied by <strong>translation</strong>, makes the whole cloth.</li>
+      <li><strong>Strip borders</strong> on sashes and hems are <strong>frieze patterns</strong>, which repeat in one direction (Module 5 has the seven types).</li>
+      <li><strong>All-over patterns</strong> are <strong>wallpaper patterns</strong>, which repeat in two directions. UP's weaving-mathematics project classifies Ilocano textiles by symmetry group. The <em>sinan-paddak ti pusa</em> (“cat's paw”) binakol design is <b>pmm</b>: mirror lines both ways, meeting at 180° rotation centers. A Vigan binakol variant is <b>p1</b>, which has translations only.</li>
+      <li>A single Paoay flower motif has four symmetries: do nothing, a 180° turn, a horizontal flip and a vertical flip. Together these form a group called the <strong>Klein four-group</strong>.</li>
+    </ul>
+
+    <div class="calc" id="tool-weave">
+      <h3 style="margin:0">Weave grid</h3>
+      <div class="sub">Dark = warp on top (1); light = weft on top (0). Pick a weave, or tap cells to design your own repeat unit. The pattern is tiled by translation to show the cloth.</div>
+      <div class="presets" id="wpre"></div>
+      <div class="row" style="align-items:start">
+        <div><div class="sub">Repeat unit (tap to edit)</div><div id="wunit" class="wgrid"></div></div>
+        <div><div class="sub">Woven cloth</div><canvas id="wcloth" width="240" height="240" style="width:100%;max-width:240px;border-radius:8px;border:1px solid var(--line)"></canvas></div>
+      </div>
+      <p class="sub" id="wsym"></p>
+    </div>
+    <p class="small">Sources for the methods above: <a href="https://en.wikipedia.org/wiki/Inabel" target="_blank" rel="noopener">Inabel (Wikipedia)</a> · <a href="https://en.wikipedia.org/wiki/Binakael" target="_blank" rel="noopener">Binakael (Wikipedia)</a> · <a href="https://lifestyle.inquirer.net/?p=502164" target="_blank" rel="noopener">“So you think you know your local weaves?” (Inquirer Lifestyle)</a> · <a href="https://sites.google.com/up.edu.ph/weaving-mathematics/indigenous-patterns/northern-luzon/iloko" target="_blank" rel="noopener">UP Weaving Mathematics: Iloko patterns</a> · <a href="https://upd.edu.ph/preserving-traditional-textile/" target="_blank" rel="noopener">UP Diliman: Preserving traditional textile</a></p>
+  </section>
+
+  <section id="s-arch">
+    <div class="band"></div>
+    <h2>4. Architecture</h2>
+    <ul>
+      <li><strong>San Miguel Corporation head office</strong>: designed by Francisco Mañosa with brothers Jose and Manuel; landscaping by <strong>Ildefonso Santos</strong> (2006 National Artist for Architecture). Inspired by the <strong>Banaue Rice Terraces</strong>.</li>
+      <li>Robin Morgan noted the terraces' planting patterns: whirls, nested triangles, concentric circles, Greek key motifs, the same patterns on Ifugao hems, sleeves and tattoos.</li>
+      <li>Dr. James Stewart: <strong>calculus is the mathematics of curves</strong>.</li>
+      <li><strong>Integral House</strong> (Toronto, Canada): a four-story, curve-dominated house built for Stewart, designed by <strong>Shim-Sutcliffe</strong>; named after the calculus integral.</li>
+      <li><strong>Lurie Garden</strong> at Millennium Park, Chicago: landscape architects used geometry to win the design competition.</li>
+    </ul>
+  </section>
+
+  <section id="s-poem">
+    <div class="band"></div>
+    <h2>5. Poems with Patterns</h2>
+    <p>William James: the ideal is the union of the mathematician with the poet, “fervor with measure, passion with correctness.”</p>
+    <p>Filipino poetic forms: <strong>Balagtasan</strong> (Tagalog), <strong>dallot</strong> (Ilocano), <strong>ambahan</strong> (Mindoro), and spoken word.</p>
+    <h3>Haiku</h3>
+    <p>Japanese, not primarily rhyming. <strong>3 lines with 5-7-5 syllables.</strong></p>
+    <div class="poem"><span class="n">5</span>  I don't understand!
+<span class="n">7</span>  No matter how near I am,
+<span class="n">5</span>  I can't approach you.        <span class="n">— “Asymptotes”</span></div>
+    <p>“Thirteen Haikus” by UP Los Baños students (Leslie Anne Garcia, Anna Jane DeLima, Julie Ann Medrano): the first letters of the 13 titles spell <strong>COMBINATORICS</strong>.</p>
+    <h3>Fibonacci poem</h3>
+    <p>Lines follow the Fibonacci sequence 1, 1, 2, 3, 5, 8, 13…, counting either <strong>words</strong> or <strong>syllables</strong>.</p>
+    <div class="fib" aria-hidden="true"><i style="height:8%">1</i><i style="height:8%">1</i><i style="height:16%">2</i><i style="height:24%">3</i><i style="height:40%">5</i><i style="height:64%">8</i><i style="height:100%">13</i><i style="height:64%">8</i><i style="height:40%">5</i><i style="height:24%">3</i><i style="height:16%">2</i><i style="height:8%">1</i><i style="height:8%">1</i></div>
+    <ul>
+      <li><strong>Andrew Jackson</strong> counted <em>words</em> (1, 1, 2, 3): “One / person / with courage / makes a majority.”</li>
+      <li><strong>Oliver Wendell Holmes, Jr.</strong> counted <em>syllables</em> (1, 1, 2, 3, 5): “Life / is / painting / a picture / not doing a sum.”</li>
+      <li>Longer poems may go up then back down (1, 1, 2, 3, 5 … 3, 2, 1, 1), like a <strong>reflection</strong>, as in <strong>Dr. Nat Friedman's</strong> “Stacking” and his poem for thesis adviser Rafael Chacon (Brown University). Or repeat: 1, 1, 2, 3, 5, 8, 1, 1, 2, 3, 5, 8.</li>
+    </ul>
+  </section>
+  <p class="small" style="margin-top:28px">Ready? <a href="#quiz" id="goquiz">Take the quiz →</a></p>
+</main>
+
+<main id="quiz" hidden>
+  <div class="qbar"><div class="progress"><div id="pbar"></div></div><span class="count" id="count"></span></div>
+  <div class="card" id="qcard"></div>
+</main>
+</div>
+
+<script>
+const Q=[
+["Intro","At the core of both mathematics and art lies the concept of:",["Proof","Patterns","Probability","Measurement"],1,"The module opens by naming patterns as the shared core of math and art."],
+["Intro","Which artist made tessellations using irregular polygons?",["Vicente Manansala","Salvador Dalí","M.C. Escher","Santiago Calatrava"],2,"Dutch graphic artist M.C. Escher is known for tessellations and mathematical themes."],
+["Intro","Lewis Carroll, author of Alice in Wonderland, was the pen name of:",["Keith Devlin","Charles Lutwidge Dodgson","Tom Stoppard","Andrew Wiles"],1,"Charles Lutwidge Dodgson (1832–1898) was an English mathematician."],
+["Intro","Santiago Calatrava's kinetic sculpture “Wave” brings which curve to life?",["Parabola","Sine-cosine curve","Hyperbola","Logarithmic spiral"],1,"It was installed outside the Meadows Museum building in 2002."],
+["Intro","Dalí's “The Face of War” (1941) used which concept to convey endless misery?",["Fractals","Tessellations","Golden ratio","Vectors"],0,"Faces nested within faces show self-similarity, the idea behind fractals."],
+["Intro","Van Gogh intuitively depicted which difficult concept in his 1889 skyscape?",["Infinity","Turbulence","Gravity","Symmetry"],1,"His swirling sky reflects patterns of turbulence found in nature."],
+["Music","According to Dr. James Stewart, music relates to mathematics in four aspects. Which is NOT one of them?",["Rhythm","Harmony","Volume","Form"],2,"The four are rhythm, harmony, melody and form."],
+["Music","“Rhythm is a combination of _____.”",["notes and rests in a scale","sounds and spaces","pitch and volume","beats and bars only"],1,"Ndugu Chancler's “The Rhythm Track” defines rhythm this way."],
+["Music","Translation in geometry corresponds to which musical transformation?",["Inversion","Retrogression","Transposition","Augmentation"],2,"Shifting the whole melody up or down in pitch is like sliding a figure."],
+["Music","Reflection about a horizontal axis corresponds to:",["Inversion","Retrogression","Diminution","Transposition"],0,"Flipping pitch up/down mirrors the melody across a horizontal line."],
+["Music","Playing a melody backwards (retrogression) is like:",["Rotation by 90°","Reflection about a vertical axis","Dilation","Translation"],1,"A vertical axis flips the time direction left to right."],
+["Music","A rotation of 180° corresponds to:",["Retrograde inversion","Augmentation","Transposition","Inversion"],0,"Rotating 180° = reflecting over both axes: backwards and upside-down."],
+["Music","Playing a theme twice as slowly (augmentation) corresponds to a dilation with scale factor:",["Less than 1","Equal to 1","Greater than 1","Equal to 0"],2,"Stretching time makes the figure larger; diminution uses a factor less than 1."],
+["Music","A canon where the theme is played backwards in time is called a:",["Fugue","Crab canon","Round","Sonata"],1,"Named after the backward movement of crabs, as in Bach's Musical Offering (1747)."],
+["Music","A Möbius strip has:",["Two sides, two edges","One side, two edges","One side, one edge","Two sides, one edge"],2,"The recycling symbol is a variant of the Möbius strip."],
+["Dance","Dance can be described as:",["Algebra in rhythm","Geometry in motion","Calculus of the body","Statistics of movement"],1,"The module describes dance as geometry in motion."],
+["Dance","In Table 1, the dance term “Level” corresponds in math to:",["Vector quantities","Position relative to the horizontal axis","Range of a function","Shape of a graph"],1,"High, medium or low level ≈ points above, on, or below the horizontal axis."],
+["Dance","The floor/space pattern in dance corresponds to:",["The shape of the graph of a function","A vector's magnitude","The domain of a function","An angle"],0,"The path on the floor is like the shape of a function's graph."],
+["Dance","Glide symmetry combines which two symmetries?",["Rotation and reflection","Translation (slide) and reflection (mirror)","Rotation and translation","Dilation and reflection"],1,"A glide reflection slides then mirrors."],
+["Dance","Which National Artist for Dance drilled her dancers so every arm was at the exact same angle?",["Leonor Orosa Goquingco","Carole de la Paz-Zialcita","Lucrecia Reyes-Urtula","Francisca Reyes-Aquino"],0,"Carole de la Paz-Zialcita recalled Mrs. Goquingco's precision and the dancers' muscle memory."],
+["Dance","Jesse Wolfson helped Reggie Wilson's group use which idea from Bantu-based urban design?",["Tessellation","Fractals (self-similar circles)","Fibonacci sequence","Möbius strip"],1,"Each part (city, family enclosure, house) has the same circular character as the whole."],
+["Weaving","The UP Sablay is woven by weavers from Arevalo, Iloilo using the:",["Inabel method","Binakol method","Sinuksok method","Ikat method"],2,"The module names the sinuksok method."],
+["Weaving","In weaving, the lengthwise threads held on the loom are the:",["Weft","Warp","Heddle","Brocade"],1,"The weft is the crosswise thread passed over and under the warp."],
+["Weaving","Which Ilocano weave uses straight lines to create an optical illusion of whirlwinds or waves?",["Binakol","Ikat","Patadyong","Sinaluan"],0,"It's said to ward off evil spirits."],
+["Weaving","Ikat differs from other methods because the pattern is made by:",["Inserting sticks under warp threads","Tying and dyeing the yarn before weaving","Embroidering after weaving","Painting the finished cloth"],1,"It's a resist-dye technique, as in Ifugao weaving."],
+["Weaving","Pinilian is a brocade technique where:",["The yarn is dyed first","Sticks lift selected warp threads so designs float","Only black thread is used","Cloth is woven in a tube"],1,"The floating designs look three-dimensional."],
+["Weaving","Sinuksok comes from a word meaning:",["To dye","To insert","To spin","To fold"],1,"Pattern threads are inserted only where the motif goes."],
+["Weaving","The Yakan and Tausug weave on a:",["Pedal loom","Backstrap loom","Power loom","Frame loom with treadles"],1,"The weaver's body keeps the warp taut."],
+["Weaving","A woven border that repeats in one direction is an example of a:",["Frieze pattern","Fractal","Möbius strip","Tessellation of hexagons"],0,"An all-over pattern repeating in two directions is a wallpaper pattern."],
+["Weaving","A motif with exactly four symmetries (identity, a 180° turn, and two flips) forms the:",["Klein four-group","Fibonacci sequence","Golden ratio","Banzhaf index"],0,"UP's weaving-mathematics project found this in Paoay flower motifs."],
+["Architecture","The San Miguel Corporation head office was inspired by:",["Mayon Volcano","Banaue Rice Terraces","Chocolate Hills","Taal Lake"],1,"Designed by the Mañosa brothers; its tiered form echoes the rice terraces."],
+["Architecture","Integral House in Toronto was built for which mathematician-musician?",["Karl Schaffer","Nat Friedman","James Stewart","Keith Devlin"],2,"Stewart called calculus the mathematics of curves, and the house is curve-dominated."],
+["Poetry","A haiku has 3 lines with a syllable pattern of:",["7-5-7","5-7-5","5-5-7","3-5-3"],1,"First and third lines have 5 syllables; the second has 7."],
+["Poetry","The first letters of the titles of the “Thirteen Haikus” spell:",["MATHEMATICS","COMBINATORICS","GEOMETRICALS","PROBABILITIES"],1,"Counting, Orders, Matroids, Blocs … Sets → COMBINATORICS."],
+["Poetry","Oliver Wendell Holmes, Jr.'s “Life / is / painting / a picture / not doing a sum” follows the Fibonacci pattern by counting:",["Words","Syllables","Letters","Rhymes"],1,"1, 1, 2, 3, 5 syllables. Andrew Jackson's piece counted words instead."],
+["Poetry","A Fibonacci poem with line counts 1,1,2,3,5,8,13,8,5,3,2,1,1 is described as akin to:",["Translation","Rotation","Reflection","Dilation"],2,"The pattern rises then mirrors back down, like a reflection."]
+];
+let order=[],i=0,score=0,answered=false,missed=[];
+const card=document.getElementById('qcard'),pbar=document.getElementById('pbar'),cnt=document.getElementById('count');
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a}
+function start(){Q.forEach(x=>{const ok=x[2][x[3]];x[2]=shuffle(x[2]);x[3]=x[2].indexOf(ok);});order=shuffle(Q.map((_,k)=>k));i=0;score=0;missed=[];render()}
+function render(){
+  answered=false;
+  pbar.style.width=(i/order.length*100)+'%';
+  if(i>=order.length)return finish();
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  card.innerHTML=`<div class="qtopic">${t}</div><div class="qtext">${q}</div><div class="opts">${opts.map((o,k)=>`<button class="opt" id="opt${k}" data-k="${k}"><span class="l">${'ABCD'[k]}</span><span>${o}</span></button>`).join('')}</div><div id="fb"></div>`;
+  card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+}
+function pick(k){
+  if(answered)return;answered=true;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  const btns=card.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  btns[ans].classList.add('right');
+  const ok=k===ans;
+  if(ok)score++;else{btns[k].classList.add('wrong');missed.push([q,opts[ans]])}
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  document.getElementById('fb').innerHTML=`<div class="explain"><b class="${ok?'ok':'no'}">${ok?'Correct.':'Not quite.'}</b> ${why}</div><div class="actions"><button class="btn" id="next">${i+1<order.length?'Next question':'See results'}</button></div>`;
+  const n=document.getElementById('next');n.onclick=()=>{i++;render()};n.focus();
+}
+function finish(){
+  const pct=Math.round(score/order.length*100);
+  cnt.textContent=`Done · ${score}/${order.length}`;
+  const msg=pct>=90?'Excellent. You know this module well.':pct>=75?'Good work. Review the items below.':pct>=50?'Getting there. Go over the sections you missed.':'Revisit the reviewer, then try again.';
+  card.innerHTML=`<div class="qtopic">Results</div><div class="score">${score}<span style="font-size:1.4rem;color:var(--muted)"> / ${order.length}</span></div><p>${pct}% · ${msg}</p>${missed.length?`<h3>Review these</h3><div class="missed">${missed.map(([q,a])=>`<div>${q}<br><em>Answer: ${a}</em></div>`).join('')}</div>`:''}<div class="actions"><button class="btn" id="again">Retake (shuffled)</button><button class="btn ghost" id="back">Back to reviewer</button></div>`;
+  document.getElementById('again').onclick=start;
+  document.getElementById('back').onclick=()=>{location.hash='reviewer';};
+}
+function show(v){
+  const quiz=v==='quiz';
+  document.getElementById('reviewer').hidden=quiz;
+  document.getElementById('quiz').hidden=!quiz;
+  document.getElementById('tab-rev').setAttribute('aria-selected',!quiz);
+  document.getElementById('tab-quiz').setAttribute('aria-selected',quiz);
+  if(quiz&&!order.length)start();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{location.hash=b.dataset.view});
+function route(){const h=location.hash.slice(1);if(h==='quiz')show('quiz');else if(h==='reviewer'||!h)show('reviewer');else{show('reviewer');const el=document.getElementById(h);if(el)el.scrollIntoView();}}
+window.addEventListener('hashchange',route);route();
+
+(function(){const P={'Plain weave':[[1,0],[0,1]],'Basket weave':[[1,1,0,0],[1,1,0,0],[0,0,1,1],[0,0,1,1]],'2/2 twill':[[1,1,0,0],[0,1,1,0],[0,0,1,1],[1,0,0,1]],'3/1 twill':[[1,1,1,0],[0,1,1,1],[1,0,1,1],[1,1,0,1]],'Diamond':[[0,0,0,1,0,0],[0,0,1,0,1,0],[0,1,0,0,0,1],[1,0,0,0,0,0],[0,1,0,0,0,1],[0,0,1,0,1,0]]};
+let U=P['Plain weave'].map(r=>r.slice()),cur='Plain weave';
+const css=getComputedStyle(document.documentElement);
+function sym(u){const n=u.length,m=u[0].length,M=(x,k)=>((x%k)+k)%k;const any=f=>{for(let a=0;a<n;a++)for(let b=0;b<m;b++)if(u.every((r,i)=>r.every((v,j)=>v===f(i,j,a,b))))return true;return false};
+ const v=any((i,j,a,b)=>u[i][M(b-j,m)]),h=any((i,j,a,b)=>u[M(a-i,n)][j]),r=any((i,j,a,b)=>u[M(a-i,n)][M(b-j,m)]);
+ const sq=n===m,d1=sq&&any((i,j,a,b)=>u[M(j+a,n)][M(i+b,m)]),d2=sq&&any((i,j,a,b)=>u[M(a-j,n)][M(b-i,m)]);
+ const out=[];if(v)out.push('vertical mirror lines');if(h)out.push('horizontal mirror lines');if(d1||d2)out.push('diagonal mirror lines');if(r)out.push('180° rotation centers');
+ return 'The woven cloth has translation'+(out.length?', '+out.join(', ')+'.':' only (no mirrors or 180° turns).')}
+function draw(){const n=U.length,m=U[0].length;const g=document.getElementById('wunit');g.style.gridTemplateColumns=`repeat(${m},1fr)`;
+ g.innerHTML=U.map((r,i)=>r.map((v,j)=>`<button aria-label="row ${i+1} column ${j+1}: ${v?'warp':'weft'} on top" class="${v?'on':''}" data-i="${i}" data-j="${j}"></button>`).join('')).join('');
+ g.querySelectorAll('button').forEach(b=>b.onclick=()=>{U[b.dataset.i][b.dataset.j]^=1;cur='';draw()});
+ const c=document.getElementById('wcloth'),x=c.getContext('2d'),S=12;const A=css.getPropertyValue('--indigo').trim()||'#2c3a8c',B=css.getPropertyValue('--gold').trim()||'#c08a12';
+ x.clearRect(0,0,240,240);for(let i=0;i<20;i++)for(let j=0;j<20;j++){const v=U[i%n][j%m];x.fillStyle=v?A:B;if(v)x.fillRect(j*S+2,i*S,S-4,S);else x.fillRect(j*S,i*S+2,S,S-4)}
+ document.getElementById('wsym').textContent=sym(U);
+ document.querySelectorAll('#wpre button').forEach(b=>b.classList.toggle('on',b.textContent===cur))}
+document.getElementById('wpre').innerHTML=Object.keys(P).map(k=>`<button>${k}</button>`).join('');
+document.getElementById('wpre').onclick=e=>{const b=e.target.closest('button');if(!b)return;cur=b.textContent;U=P[cur].map(r=>r.slice());draw()};
+draw();})();
+</script>
+
+</body>
+</html>
