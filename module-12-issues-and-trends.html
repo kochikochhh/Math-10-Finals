@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Issues and Trends Reviewer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: single reading column, sticky tab bar (Reviewer / Quiz), woven-band motif as section dividers */
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --ink:#1b1d33; --muted:#5a5e7a; --line:#dcdfec;
+  --indigo:#2c3a8c; --madder:#b8323a; --gold:#c08a12; --tint:#e9ecf8; --ok:#1f7a4d; --bad:#b8323a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12131f; --surface:#1b1d2e; --ink:#e8e9f3; --muted:#a3a7c2; --line:#2f3248;
+  --indigo:#9aa8ff; --madder:#ff7b82; --gold:#e8b84a; --tint:#23264a; --ok:#5fd39a; --bad:#ff7b82; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,7vw,3.1rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700;color:var(--indigo)}
+h3{font-size:1.12rem;font-weight:700;margin-top:1.4em}
+p{margin:.6em 0}
+a{color:var(--indigo)}
+header{padding-block:28px 12px}
+.eyebrow{font:500 .75rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--madder)}
+.lede{color:var(--muted);max-width:60ch}
+/* woven band */
+.band{height:14px;border-radius:2px;margin:6px 0 0;
+  background:
+   repeating-linear-gradient(90deg,var(--indigo) 0 10px,transparent 10px 20px),
+   repeating-linear-gradient(90deg,transparent 0 5px,var(--madder) 5px 10px,transparent 10px 20px),
+   var(--gold);
+  background-size:20px 7px,20px 7px,auto;background-position:0 0,10px 7px,0 0;background-repeat:repeat-x}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;gap:8px;border-bottom:1px solid var(--line)}
+nav button{flex:1;font:700 1rem var(--display);padding:10px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+nav button[aria-selected="true"]{background:var(--indigo);border-color:var(--indigo);color:var(--bg)}
+button:focus-visible,summary:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
+.toc a{font:500 .8rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;color:var(--muted);background:var(--surface)}
+section{padding-block:28px 6px}
+section>.band{margin-bottom:14px;width:64px}
+ul{padding-left:1.2em;margin:.5em 0}
+li{margin:.25em 0}
+.examples{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));margin:12px 0}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.ex b{display:block;font-family:var(--display);font-size:1rem}
+.ex span{color:var(--muted);font-size:.93rem}
+.tag{display:inline-block;font:500 .68rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--madder);margin-bottom:2px}
+.tablebox{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.95rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--tint)}
+tr:last-child td{border-bottom:0}
+.key{background:var(--tint);border-left:4px solid var(--madder);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+.key strong{color:var(--madder)}
+.poem{font-family:var(--mono);font-size:.9rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;white-space:pre;overflow-x:auto;line-height:1.7}
+.poem .n{color:var(--gold)}
+.fib{display:flex;align-items:flex-end;gap:4px;height:70px;margin:10px 0}
+.fib i{display:block;width:18px;background:var(--indigo);border-radius:3px 3px 0 0;font:500 .65rem var(--mono);color:var(--bg);text-align:center;font-style:normal}
+/* quiz */
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;margin:18px 0 8px}
+.progress{flex:1 1 180px;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress div{height:100%;background:var(--madder);width:0;transition:width .3s}
+.count{font:500 .85rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.qtopic{font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--madder)}
+.qtext{font:700 1.2rem/1.35 var(--display);margin:8px 0 16px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--indigo)}
+.opt .l{font:700 .85rem var(--mono);color:var(--muted);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--tint);font-size:.95rem}
+.explain b.ok{color:var(--ok)} .explain b.no{color:var(--bad)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{font:700 1rem var(--display);padding:10px 18px;border-radius:999px;border:0;background:var(--indigo);color:var(--bg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--indigo);border:1.5px solid var(--indigo)}
+.score{font:800 3.4rem var(--display);color:var(--indigo);font-variant-numeric:tabular-nums;line-height:1}
+.missed{margin-top:14px;display:grid;gap:8px}
+.missed div{border-left:3px solid var(--bad);padding:6px 12px;background:var(--bg);border-radius:0 8px 8px 0;font-size:.93rem}
+.missed em{color:var(--ok);font-style:normal;font-weight:600}
+.small{font-size:.88rem;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style><style>
+.calc>*{min-width:0}
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;display:grid;gap:10px}
+.calc label{font:700 .8rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:grid;gap:4px}
+.calc textarea{font:500 .95rem/1.6 var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0;resize:vertical}
+.calc textarea:focus{outline:none;border-color:var(--indigo)}
+.wins{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
+.win{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.win b{display:block;font:800 1.5rem var(--display);color:var(--indigo)}
+.flag{font-size:.92rem;padding:8px 12px;border-radius:8px;background:var(--tint)}
+.flag.bad{border-left:3px solid var(--bad)}
+.flag.ok{border-left:3px solid var(--ok)}
+.calc details{border-top:1px solid var(--line);padding-top:8px}
+.calc summary{cursor:pointer;font:700 .95rem var(--display)}
+.calc td{white-space:nowrap}
+.calc input{font:500 1rem var(--mono);padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.calc input:focus{outline:none;border-color:var(--indigo)}
+.calc .row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+.calc .err{color:var(--bad);font-size:.92rem}
+.calc .sub{color:var(--muted);font-size:.88rem}
+.calc .presets{display:flex;flex-wrap:wrap;gap:6px}
+.calc .presets button{font:500 .78rem var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink);cursor:pointer}
+.calc table{min-width:0}
+.calc td,.calc th{font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--madder);border-radius:99px}
+.tt td,.tt th{text-align:center;font-family:var(--mono);font-size:.85rem}
+.tt th{text-transform:none;letter-spacing:0}
+.tt th.fin{background:var(--indigo);color:var(--bg)}
+.tv{color:var(--ok);font-weight:700}.fv{color:var(--bad)}
+.symbtn{font:700 1.05rem var(--mono)!important;min-width:2.6em}
+code{font-family:var(--mono);font-size:.9em;background:var(--tint);padding:1px 5px;border-radius:4px}
+</style>
+<div class="wrap">
+<header>
+  <p style="margin:0 0 8px"><a href="index.html">← All modules</a></p>
+  <div class="eyebrow">MATH 10 · Module 12</div>
+  <h1>Issues and Trends in Mathematics</h1>
+  <div class="band" style="width:140px"></div>
+  <p class="lede">A reviewer on ethnomathematics, technology, socioeconomic status, Indigenous peoples' education, and critical mathematics education. Includes a who's-who table, prep notes for every activity, and a quiz.</p>
+</header>
+
+<nav role="tablist">
+  <button id="tab-rev" role="tab" aria-selected="true" data-view="reviewer">Reviewer</button>
+  <button id="tab-quiz" role="tab" aria-selected="false" data-view="quiz">Quiz</button>
+</nav>
+
+<main id="reviewer">
+  <div class="toc">
+    <a href="#s-intro">Intro</a><a href="#s-ethno">1.1 Ethnomath</a><a href="#s-props">Activity 1.1 prep</a><a href="#s-tech">1.2 Technology</a><a href="#s-ses">2.1 SES</a><a href="#s-ip">2.2 IP education</a><a href="#s-edu">3 Math education</a><a href="#s-ph">PH data</a><a href="#s-who">Who's who</a>
+  </div>
+
+  <section id="s-intro">
+    <div class="band"></div>
+    <h2>The big questions</h2>
+    <p>Math is a dynamic, useful, creative human endeavor, so why do so many students fail it? <strong>Gender, socioeconomic background, race and culture</strong> all affect math learning. The module adds two more issues:</p>
+    <ul>
+      <li>How can mathematics change relations in society and promote <strong>equity and social justice</strong>?</li>
+      <li>What is the <strong>nature of mathematical knowledge</strong>, and what have <strong>non-Western societies</strong> contributed?</li>
+    </ul>
+    <div class="examples">
+      <div class="ex"><span class="tag">Category 1</span><b>Trends in mathematics</b><span>Ethnomathematics; technology</span></div>
+      <div class="ex"><span class="tag">Category 2</span><b>Mathematics and difference</b><span>Socioeconomic status; Indigenous peoples (gender comes in the next module)</span></div>
+      <div class="ex"><span class="tag">Category 3</span><b>Mathematics education</b><span>Math literacy; critical mathematics education; social justice</span></div>
+    </div>
+    <p class="small">The module says these categories overlap and don't cover every issue. Much of the work is reading articles outside class.</p>
+  </section>
+
+  <section id="s-ethno">
+    <div class="band"></div>
+    <h2>1.1 Ethnomathematics: Mathematics and Culture</h2>
+    <p><strong>Ethnomathematics</strong> studies the <strong>interplay of mathematics and culture</strong>. It critiques the dominant view of Western mathematics as <em>the</em> mathematics, singular, universal and value-free (Hottinger, 2016). One view is that it <strong>challenges Eurocentrism</strong> in mathematics (Powell &amp; Frankenstein, 1997).</p>
+    <ul>
+      <li><strong>Eurocentric trajectory:</strong> the usual history of math treats it as an exclusive product of European civilization (Joseph, 2009). That's where the phrase “Western mathematics” comes from.</li>
+      <li><strong>Socio-cultural mathematics:</strong> the math that develops within a particular culture. Some scholars use it as another name for ethnomathematics, but ethnomathematics has a wider agenda: history, politics, philosophy, culture and pedagogy.</li>
+      <li><strong>A key task:</strong> uncovering mathematical ideas embedded in cultural practices and artifacts, ideas that were hidden, frozen, subjugated or marginalized during <strong>colonization</strong>.</li>
+      <li><strong>Paulus Gerdes</strong> (Mozambique) pioneered this. He and his students studied <strong>African geometry and fractals</strong>. Uncovering math in culture supports <strong>cultural affirmation</strong> and <strong>conscientization</strong> (critical awareness).</li>
+      <li><strong>Alan Bishop</strong>, <em>Western mathematics: the secret weapon of cultural imperialism</em> (1990), challenges the myth that math is culture-free, and sees math as a <strong>pan-cultural</strong> phenomenon, found in every culture.</li>
+    </ul>
+    <div class="key"><strong>Link to earlier modules:</strong> the Babylonian, Egyptian, Chinese and Hindu-Arabic numeration systems (Module 5) and the symmetries in Philippine textiles like binakol (Module 8) are examples of math developed outside Europe. That's ethnomathematics in action.</div>
+  </section>
+
+  <section id="s-props">
+    <div class="band"></div>
+    <h2>Activity 1.1 prep: the three propositions</h2>
+    <p>Each group picks one reading and one proposition, then reports points of agreement and disagreement. Here are arguments on both sides to get your discussion started. Your group decides where it lands.</p>
+    <div class="tablebox"><table>
+      <tr><th>Proposition</th><th>Arguments for</th><th>Arguments against</th></tr>
+      <tr><td><b>1. There is no such thing as Western Mathematics.</b></td><td>Math grew from many cultures: Babylonian base 60, Indian numerals and zero, Arab algebra, Chinese rod numerals. Ideas crossed borders, so labeling it “Western” erases those roots (Joseph's “alternative perspectives”).</td><td>The formal, axiomatic, proof-based style (Euclid, Module 3) did develop mainly in Greek and later European traditions, and that style dominates schools worldwide. Bishop uses “Western mathematics” to name exactly that dominant form.</td></tr>
+      <tr><td><b>2. Mathematics is culture-free and universal.</b></td><td>2 + 2 = 4 everywhere. A valid proof is valid in any language, and the same theorems were found independently in different places.</td><td>Which problems get studied, which symbols are used, what counts as “real” math, and how it's taught all come from culture. Weaving, counting systems and navigation show math that schools often don't recognize.</td></tr>
+      <tr><td><b>3. Mathematics is a tool for cultural imperialism.</b></td><td>Bishop argues that colonial schooling spread one form of math as the only valid one, devaluing local knowledge. Math tests can act as gatekeepers.</td><td>Math is also a tool for empowerment: Gutstein uses it to fight injustice, and ethnomathematics uses it to affirm cultures. The same tool can oppress or liberate depending on how it's used.</td></tr>
+    </table></div>
+    <p class="small">The readings: <b>Article 1</b>, Joseph, <em>The Crest of the Peacock</em>, ch. 1 · <b>Article 2</b>, Gerdes, “On Culture, Geometrical Thinking and Mathematics Education” · <b>Article 3</b>, Bishop, “Western mathematics: the secret weapon of cultural imperialism.” (The module's final article list gives a different Article 2, Powell &amp; Frankenstein's chapter 3. Check with your teacher which one your group should read.)</p>
+  </section>
+
+  <section id="s-tech">
+    <div class="band"></div>
+    <h2>1.2 Mathematics and Technology</h2>
+    <ul>
+      <li><strong>Uses:</strong> computer simulations help visualize mathematical models and give new insights. Computers, graphics calculators, interactive smart boards and apps can <strong>deepen conceptual understanding</strong> when used well.</li>
+      <li><strong>Issue 1, access:</strong> not every school, teacher or student can afford these tools.</li>
+      <li><strong>Issue 2, teacher readiness:</strong> not every teacher is prepared to teach with them.</li>
+    </ul>
+    <p><strong>Borba et al. (2017)</strong>, reported at the <strong>13th International Congress on Mathematical Education (ICME-13, 2016)</strong>, named five trends in math education and digital technology:</p>
+    <ol>
+      <li>Mobile technologies</li>
+      <li>Massive open online courses (<strong>MOOCs</strong>)</li>
+      <li>Digital libraries and designing learning objects</li>
+      <li>Collaborative learning using digital technology</li>
+      <li>Teacher training using blended learning</li>
+    </ol>
+    <p class="small">For Activity 1.2's debates, think about calculators in class (understanding vs. computation), AI tools, online learning during the pandemic, and the digital divide between city and rural schools.</p>
+  </section>
+
+  <section id="s-ses">
+    <div class="band"></div>
+    <h2>2.1 Socioeconomic Status (SES) and Success in Math</h2>
+    <p>According to the <strong>American Psychological Association</strong>, students from <strong>low-SES</strong> households and communities develop academic skills more slowly than those from higher-SES groups. This holds in both developing and developed countries.</p>
+    <ul>
+      <li><strong>TIMSS</strong> (Trends in International Mathematics and Science Study) measures math and science achievement at <strong>grades 4 and 8</strong>.</li>
+      <li><strong>Article 5</strong> (Caygill &amp; Kirkham, 2008) covers New Zealand's <strong>Year 5 (grade 4)</strong> math results from <strong>1994 to 2006</strong>, broken down by SES and home educational resources.</li>
+      <li>A <strong>proxy measure</strong> is something measurable that stands in for SES, which is hard to measure directly.</li>
+    </ul>
+    <div class="examples">
+      <div class="ex"><span class="tag">Common TIMSS-style proxies</span><b>At home</b><span>Number of books at home; a computer or internet; a study desk or own room; parents' education</span></div>
+      <div class="ex"><span class="tag">Philippine ideas (Activity 2.1)</span><b>Possible local proxies</b><span>4Ps (Pantawid Pamilya) membership; gadget and internet access for online class; parents' occupation; type of housing; public vs. private school</span></div>
+    </div>
+    <p class="small">Check Article 5 itself for the exact proxies the study used; Activity 2.1 asks you to list them and explain why they were chosen.</p>
+  </section>
+
+  <section id="s-ip">
+    <div class="band"></div>
+    <h2>2.2 Indigenous Peoples and Mathematics</h2>
+    <p>Indigenous peoples have a long history of discrimination in schools. <strong>Culturally relevant education</strong> has grown worldwide; Canada, the United States, Australia and New Zealand have long histories of it. Part of the task is culturally relevant <strong>math</strong> education.</p>
+    <h3>Activity 2.2: Stavros Stavrou, TEDxSaskatoon</h3>
+    <p><em>Aboriginal math education: Collaborative learning</em> (9:44). Discussion questions: what's different about his approach, its strengths and weaknesses, and what he means by <strong>anti-oppressive mathematics education</strong>.</p>
+    <h3>In the Philippines</h3>
+    <ul>
+      <li><strong>DepEd Order No. 62, s. 2011</strong>: the <strong>National Indigenous Peoples Education Policy Framework</strong>, which institutionalized IP education.</li>
+      <li>One policy: integrate <strong>Indigenous Knowledge Systems and Practices (IKSPs)</strong> in all learning areas, including pedagogy, content and assessment.</li>
+      <li>Under K-12, DepEd pursues <strong>localization and contextualization</strong>: math teachers build lessons around the local Indigenous culture.</li>
+      <li><strong>PAMANA KA</strong>: a school for <strong>Indigenous Mangyan</strong> students in San Jose, Mindoro, set up before the government policy. Article 6 (Alangui, 2017) presents it as a successful model of culturally relevant math education.</li>
+    </ul>
+  </section>
+
+  <section id="s-edu">
+    <div class="band"></div>
+    <h2>3. Mathematics Education</h2>
+    <ul>
+      <li><strong>Mathematics education</strong> studies how math is taught and learned, and how philosophical, psychological, historical, political, socioeconomic and cultural factors affect it.</li>
+      <li><strong>Mathematical literacy</strong> (Ojose, 2011): knowing and being able to apply basic math in day-to-day life. Building a mathematically literate society is a widely shared goal.</li>
+      <li><strong>The curriculum is political:</strong> what math gets taught and how is shaped by the political climate and the dominant worldview.</li>
+    </ul>
+    <h3>Critical Mathematics Education (Greer &amp; Skovsmose, 2012)</h3>
+    <div class="examples">
+      <div class="ex"><span class="tag">Internal critique</span><b>How math is learned and taught</b><span>Looks inside the classroom: teaching methods and learning.</span></div>
+      <div class="ex"><span class="tag">External critique</span><b>Math in its context</b><span>Looks at how math and math education sit within historical, cultural, social and political contexts, and what follows from that.</span></div>
+    </div>
+    <ul>
+      <li><strong>David Stinson (2014):</strong> teaching math for social justice is an <strong>ethical and moral imperative</strong>. The math classroom is a natural place, and one of the first, to tackle injustice.</li>
+      <li><strong>Eric (Rico) Gutstein (2012):</strong> <em>Mathematics as a Weapon in the Struggle</em> (Article 7, for the Activity 3.1 critical review).</li>
+      <li>The module connects this to the Philippines: strengthening <strong>democracy and social justice</strong> three decades after Martial Law.</li>
+    </ul>
+    <p class="small">For a <b>critical review</b> (Activity 3.1): summarize the author's main claim, the evidence and examples used, what you find convincing, what you question, and how it applies to Philippine classrooms.</p>
+  </section>
+
+  <section id="s-ph">
+    <div class="band"></div>
+    <h2>Philippine data for Activities 2.1 and 3.2</h2>
+    <p class="small">These figures aren't in the module. They're from recent international studies and are useful starting points for your research.</p>
+    <div class="examples">
+      <div class="ex"><span class="tag">TIMSS 2019 · Grade 4 math</span><b>297 points, last of 58 countries</b><span>The Philippines' first TIMSS since 2003.</span></div>
+      <div class="ex"><span class="tag">PISA 2022 · 15-year-olds</span><b>355 in math (353 in 2018)</b><span>Sixth-lowest of 81 countries. Only about 16% reached basic proficiency (Level 2). The OECD average was 472.</span></div>
+    </div>
+    <p class="small">Sources: <a href="https://www.gmanetwork.com/news/news/nation/767542/philippines-lowest-out-of-58-countries-in-4th-grade-math-science-int-l-study/story/" target="_blank" rel="noopener">GMA News on TIMSS 2019</a> · <a href="https://www.philstar.com/headlines/2023/12/06/2316732/philippines-still-lags-behind-world-math-reading-and-science-pisa-2022/amp/" target="_blank" rel="noopener">Philstar on PISA 2022</a> · <a href="https://www.oecd.org/en/publications/2023/11/pisa-2022-results-volume-i-and-ii-country-notes_2fca04b9/philippines_dbf92b65.html" target="_blank" rel="noopener">OECD PISA 2022 country note: Philippines</a></p>
+  </section>
+
+  <section id="s-who">
+    <div class="band"></div>
+    <h2>Who's who</h2>
+    <div class="tablebox"><table>
+      <tr><th>Person</th><th>Work</th><th>Remember for</th></tr>
+      <tr><td><b>George G. Joseph</b></td><td><em>The Crest of the Peacock: Non-European Roots of Mathematics</em> (2009)</td><td>Math history follows a Eurocentric trajectory</td></tr>
+      <tr><td><b>Arthur Powell &amp; Marilyn Frankenstein</b></td><td><em>Ethnomathematics: Challenging Eurocentrism in Mathematics Education</em> (1997)</td><td>Ethnomath challenges Eurocentrism</td></tr>
+      <tr><td><b>Paulus Gerdes</b></td><td>“On Culture, Geometrical Thinking, and Mathematics Education”</td><td>Mozambique; African geometry and fractals; cultural affirmation, conscientization</td></tr>
+      <tr><td><b>Alan Bishop</b></td><td>“Western mathematics: the secret weapon of cultural imperialism” (1990)</td><td>Math is not culture-free; pan-cultural</td></tr>
+      <tr><td><b>S. N. Hottinger</b></td><td><em>Inventing the Mathematician</em> (2016)</td><td>Ethnomath critiques “the” singular, value-free math</td></tr>
+      <tr><td><b>Marcelo Borba et al.</b></td><td>“Digital Technology in Mathematics Education” (ICME-13, 2017)</td><td>Five tech trends, including MOOCs</td></tr>
+      <tr><td><b>Caygill &amp; Kirkham</b></td><td>New Zealand TIMSS report (2008)</td><td>SES and home resources affect math achievement</td></tr>
+      <tr><td><b>Stavros Stavrou</b></td><td>TEDxSaskatoon talk</td><td>Aboriginal math education; anti-oppressive math education</td></tr>
+      <tr><td><b>Wilfredo V. Alangui</b></td><td>“Ethnomathematics and Culturally Relevant Mathematics Education in the Philippines” (2017)</td><td>PAMANA KA and the Mangyan</td></tr>
+      <tr><td><b>Bola Ojose</b></td><td>“Mathematics literacy” (2011)</td><td>Definition of mathematical literacy</td></tr>
+      <tr><td><b>Greer &amp; Skovsmose</b></td><td><em>Opening the Cage</em> (2012)</td><td>Critical Mathematics Education: internal and external critique</td></tr>
+      <tr><td><b>David Stinson</b></td><td>“Teaching Mathematics for Social Justice” (2014)</td><td>Social justice as an ethical and moral imperative</td></tr>
+      <tr><td><b>Eric (Rico) Gutstein</b></td><td>“Mathematics as a Weapon in the Struggle” (2012)</td><td>Math for social justice (Activity 3.1)</td></tr>
+    </table></div>
+    <p class="small">Module check: the module cites Powell &amp; Frankenstein as both 1997 and 1999, and spells TIMSS as “TIMMS” in places. The book is from 1997, and the study is TIMSS.</p>
+  </section>
+  <p class="small" style="margin-top:28px">Ready? <a href="#quiz">Take the quiz →</a></p>
+</main>
+
+<main id="quiz" hidden>
+  <div class="qbar"><div class="progress"><div id="pbar"></div></div><span class="count" id="count"></span></div>
+  <div class="card" id="qcard"></div>
+</main>
+</div>
+
+<script>
+const Q=[
+["Intro","Which factors does the module say affect math learning?",["Height, age, handedness","Gender, socioeconomic background, race and culture","Only intelligence","Only the teacher's skill"],1,"These can shape whether a student succeeds or fails."],
+["Intro","The module groups its issues into three categories. Which is NOT one of them?",["Trends in mathematics","Mathematics and difference","Mathematics education","Mathematics competitions"],3,"The three are trends, difference, and education."],
+["Ethnomath","Ethnomathematics studies the interplay of mathematics and:",["Technology","Culture","Physics","Economics only"],1,"It looks at math as it develops within cultures."],
+["Ethnomath","According to Hottinger, ethnomathematics critiques the view that Western mathematics is:",["Too difficult","The singular, universal, value-free mathematics","Too recent","Not useful"],1,"It questions treating one tradition as “the” mathematics."],
+["Ethnomath","Powell and Frankenstein see ethnomathematics as challenging:",["Calculators","Eurocentrism","Algebra","Statistics"],1,"Their book is Ethnomathematics: Challenging Eurocentrism in Mathematics Education."],
+["Ethnomath","Who wrote The Crest of the Peacock: Non-European Roots of Mathematics?",["Alan Bishop","George G. Joseph","Paulus Gerdes","Eric Gutstein"],1,"He describes the Eurocentric trajectory of math history."],
+["Ethnomath","Paulus Gerdes worked in which country?",["Philippines","Mozambique","Canada","New Zealand"],1,"He studied African geometry and fractals."],
+["Ethnomath","Gerdes showed that uncovering math in cultural practice helps in cultural affirmation and:",["Colonization","Conscientization","Standardization","Globalization"],1,"Conscientization means developing critical awareness."],
+["Ethnomath","Alan Bishop called Western mathematics “the secret weapon of”:",["Science","Cultural imperialism","Democracy","Engineering"],1,"He challenges the myth that math is culture-free."],
+["Ethnomath","Bishop views mathematics as a:",["European invention","Pan-cultural phenomenon","Value-free tool","Purely modern field"],1,"Mathematical ideas appear in every culture."],
+["Ethnomath","Many cultural math ideas were hidden or marginalized during:",["The Renaissance","Colonization","The Industrial Revolution","The Space Race"],1,"Ethnomathematics works to uncover them."],
+["Technology","Which two issues about technology in math education does the module raise?",["Cost of paper and chalk","Access and teacher readiness","Battery life and screen size","Speed and color"],1,"Not everyone can get the tools, and not every teacher is ready to use them."],
+["Technology","The ICME-13 report (Borba et al.) was presented in:",["2006","2011","2016","2022"],2,"At the 13th International Congress on Mathematical Education."],
+["Technology","MOOC stands for:",["Math Online Open Class","Massive Open Online Course","Modern Open Online Curriculum","Mobile Online Offline Course"],1,"It was one of the five trends identified."],
+["SES","According to the APA, students from low-SES households tend to:",["Develop academic skills more slowly","Always score higher","Not be affected by SES","Skip math"],0,"This has been found in developing and developed countries."],
+["SES","TIMSS measures math and science achievement at grades:",["2 and 6","4 and 8","6 and 10","10 and 12"],1,"Trends in International Mathematics and Science Study."],
+["SES","Article 5 looks at New Zealand's Year 5 math results from:",["1994 to 2006","2000 to 2010","2010 to 2020","1980 to 1990"],0,"Year 5 there is equivalent to grade 4."],
+["SES","A proxy measure for socioeconomic status is:",["A direct measure of income","Something measurable that stands in for SES, like books at home","A test score","A teacher's opinion"],1,"SES is hard to measure directly, so researchers use stand-ins."],
+["IP education","The Philippine National Indigenous Peoples Education Policy Framework is:",["RA 10533","DepEd Order No. 62, s. 2011","DepEd Order No. 8, s. 2015","CHED Memo 20"],1,"It institutionalized IP education."],
+["IP education","IKSPs stands for:",["Indigenous Knowledge Systems and Practices","International Key Skills Program","Integrated K-12 Science Plan","Indigenous Kids' School Project"],0,"DO 62 integrates them into all learning areas."],
+["IP education","PAMANA KA is a school for which Indigenous group?",["Ifugao","Mangyan","T'boli","Aeta"],1,"It's in San Jose, Mindoro, and is discussed in Alangui's Article 6."],
+["IP education","Stavros Stavrou's TEDx talk promotes:",["Memorization drills","Anti-oppressive mathematics education","Online-only classes","Removing math from schools"],1,"His focus is Aboriginal students and collaborative learning."],
+["Math education","Ojose (2011) defines mathematical literacy as:",["Reading math books quickly","Knowing and applying basic math in day-to-day life","Getting perfect test scores","Memorizing formulas"],1,"A literate citizenry can use math in everyday situations."],
+["Math education","Critical Mathematics Education critiques math education:",["Only internally","Only externally","Internally and externally","Not at all"],2,"Internally: teaching and learning. Externally: historical, cultural, social and political context."],
+["Math education","Who argued that teaching math for social justice is an ethical and moral imperative?",["David Stinson","George Joseph","Paulus Gerdes","Bola Ojose"],0,"He also called the math classroom a natural setting for tackling injustice."],
+["Math education","Mathematics as a Weapon in the Struggle was written by:",["Alan Bishop","Eric (Rico) Gutstein","Ole Skovsmose","Marcelo Borba"],1,"It's Article 7, for the Activity 3.1 critical review."],
+["Math education","The module says the math curriculum is:",["Neutral and fixed","A political undertaking","Set only by mathematicians","The same in every country"],1,"It's shaped by the political climate and the dominant worldview."]
+];
+let order=[],i=0,score=0,answered=false,missed=[];
+const card=document.getElementById('qcard'),pbar=document.getElementById('pbar'),cnt=document.getElementById('count');
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];}return a}
+function start(){Q.forEach(x=>{const ok=x[2][x[3]];x[2]=shuffle(x[2]);x[3]=x[2].indexOf(ok);});order=shuffle(Q.map((_,k)=>k));i=0;score=0;missed=[];render()}
+function render(){
+  answered=false;
+  pbar.style.width=(i/order.length*100)+'%';
+  if(i>=order.length)return finish();
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  card.innerHTML=`<div class="qtopic">${t}</div><div class="qtext">${q}</div><div class="opts">${opts.map((o,k)=>`<button class="opt" id="opt${k}" data-k="${k}"><span class="l">${'ABCD'[k]}</span><span>${o}</span></button>`).join('')}</div><div id="fb"></div>`;
+  card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+}
+function pick(k){
+  if(answered)return;answered=true;
+  const [t,q,opts,ans,why]=Q[order[i]];
+  const btns=card.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  btns[ans].classList.add('right');
+  const ok=k===ans;
+  if(ok)score++;else{btns[k].classList.add('wrong');missed.push([q,opts[ans]])}
+  cnt.textContent=`Question ${i+1} of ${order.length} · Score ${score}`;
+  document.getElementById('fb').innerHTML=`<div class="explain"><b class="${ok?'ok':'no'}">${ok?'Correct.':'Not quite.'}</b> ${why}</div><div class="actions"><button class="btn" id="next">${i+1<order.length?'Next question':'See results'}</button></div>`;
+  const n=document.getElementById('next');n.onclick=()=>{i++;render()};n.focus();
+}
+function finish(){
+  const pct=Math.round(score/order.length*100);
+  cnt.textContent=`Done · ${score}/${order.length}`;
+  const msg=pct>=90?'Excellent. You know this module well.':pct>=75?'Good work. Review the items below.':pct>=50?'Getting there. Go over the sections you missed.':'Revisit the reviewer, then try again.';
+  card.innerHTML=`<div class="qtopic">Results</div><div class="score">${score}<span style="font-size:1.4rem;color:var(--muted)"> / ${order.length}</span></div><p>${pct}% · ${msg}</p>${missed.length?`<h3>Review these</h3><div class="missed">${missed.map(([q,a])=>`<div>${q}<br><em>Answer: ${a}</em></div>`).join('')}</div>`:''}<div class="actions"><button class="btn" id="again">Retake (shuffled)</button><button class="btn ghost" id="back">Back to reviewer</button></div>`;
+  document.getElementById('again').onclick=start;
+  document.getElementById('back').onclick=()=>{location.hash='reviewer';};
+}
+function show(v){
+  const quiz=v==='quiz';
+  document.getElementById('reviewer').hidden=quiz;
+  document.getElementById('quiz').hidden=!quiz;
+  document.getElementById('tab-rev').setAttribute('aria-selected',!quiz);
+  document.getElementById('tab-quiz').setAttribute('aria-selected',quiz);
+  if(quiz&&!order.length)start();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{location.hash=b.dataset.view});
+function route(){const h=location.hash.slice(1);if(h==='quiz')show('quiz');else if(h==='reviewer'||!h)show('reviewer');else{show('reviewer');const el=document.getElementById(h);if(el)el.scrollIntoView();}}
+window.addEventListener('hashchange',route);route();
+
+</script>
+
+</body>
+</html>
